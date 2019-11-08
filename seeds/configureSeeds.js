@@ -17,7 +17,7 @@ const seed = async () => {
         pg.query(
           squel
             .insert()
-            .into('boilerplate.users')
+            .into('senior_care.users')
             .setFields(userSeed)
             .toParam()
         )

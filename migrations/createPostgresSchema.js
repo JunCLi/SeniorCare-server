@@ -1,4 +1,4 @@
-const databaseSchema = 'boilerplate'
+const databaseSchema = 'senior_care'
 
 exports.up = pgm => {
   //1. Users Table

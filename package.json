@@ -1,7 +1,7 @@
 {
   "scripts": {
     "db:up": "yarn node-pg-migrate up --create-schema",
-    "db:drop": "psql -U postgres -d postgres -c \"DROP SCHEMA IF EXISTS \\\"boilerplate\\\"CASCADE\"",
+    "db:drop": "psql -U postgres -d postgres -c \"DROP SCHEMA IF EXISTS \\\"senior_care\\\"CASCADE\"",
     "db:reset": "yarn db:drop && yarn db:up",
     "db:seed": "node seeds/configureSeeds.js",
     "db:resetandseed": "yarn db:reset && yarn db:seed",

@@ -1,7 +1,7 @@
 const postgres = require('../../config/postgres')
 const { createSelectQuery, createDeleteQuery } = require('../DSHelperFunctions/makeQueries')
 
-const DBName = 'boilerplate.blacklist_jwt'
+const DBName = 'senior_care.blacklist_jwt'
 
 const getBlacklistedJWT = async () => {
 	const checkJWTColumns = [

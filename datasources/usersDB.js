@@ -5,7 +5,7 @@ const { encryptPassword, comparePassword } = require('../utils/DSHelperFunctions
 const { createCookie, setCookie, retrieveCookie } = require('../utils/authentication/cookieFunctions')
 const { createInsertQuery, createUpdateQuery, createSelectQuery } = require('../utils/DSHelperFunctions/makeQueries')
 
-const databaseSchema = 'boilerplate'
+const databaseSchema = 'senior_care'
 const usersTable = `${databaseSchema}.users`
 const blacklistTable = `${databaseSchema}.blacklist_jwt`
 
