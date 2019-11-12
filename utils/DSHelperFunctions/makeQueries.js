@@ -59,7 +59,7 @@ module.exports.createInsertQuery = (inputObject, table, returnValues) => {
     }
   } else {
     return {
-      text: `INSERT INTO ${table} (${queryString}) VALUES (${queryValuesString}) RETURNING id`,
+      text: `INSERT INTO ${table} (${queryString}) VALUES (${queryValuesString})`,
       values: queryValues
     }
   }

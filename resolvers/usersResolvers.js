@@ -6,10 +6,10 @@ module.exports = {
 
 		async login(parent, { input }, { dataSources, req, app, postgres }) {
 			const loginMessage = await dataSources.usersDB.login(input)
-			const	loginUser = await dataSources.usersDB.getUserFromId(loginMessage.user_id)
+			// const	loginUser = await dataSources.usersDB.getUserFromId(loginMessage.user_id)
 			return {
 				...loginMessage,
-				user: loginUser,
+				// user: loginUser,
 			}
 		},
 

@@ -6,10 +6,10 @@ const { createCookie, setCookie, retrieveCookie } = require('../utils/authentica
 const { createInsertQuery, createUpdateQuery, createSelectQuery } = require('../utils/DSHelperFunctions/makeQueries')
 
 const databaseSchema = 'senior_care'
-// const usersTable = `${databaseSchema}.key_contact`
+const usersTable = `${databaseSchema}.caregiver`
 const blacklistTable = `${databaseSchema}.blacklist_jwt`
 
-class KeyContactDB extends DataSource {
+class CaregiverDB extends DataSource {
 	constructor() {
 		super()
 	}
@@ -18,58 +18,22 @@ class KeyContactDB extends DataSource {
 		this.context = config.context
 	}
 
-	async userIDGenerator(userType, email) {
-		const idTypeComposite = userType === 'caregiver'
-			? 'ca'
-			: 'kc'
-		const idEmailComposite = email.substring(0, 3)
-		const hashedDate = await encryptPassword(`${Math.floor(Date.now() / 1000 + 60)}`)
-		const idDateComposite = hashedDate.split('$').reverse()[0].substring(0, 20)
-		return `${idTypeComposite}-${idEmailComposite}-${idDateComposite}`
-	}
-	
-	async uniqueIDGenerator(userType, email) {
-		const id = await this.userIDGenerator(userType, email)
-
-		const checkIDColumns = [
-			'id',
-		]
-		const checkDuplicateCaregiverQuery = createSelectQuery(checkIDColumns, `${databaseSchema}.caregiver`, 'id', id)
-		const checkDuplicateKeyContactQuery = createSelectQuery(checkIDColumns, `${databaseSchema}.key_contact`, 'id', id)
-		const checkDuplicateResultArray = await Promise.all([
-			this.context.postgres.query(checkDuplicateCaregiverQuery),
-			this.context.postgres.query(checkDuplicateKeyContactQuery)
-		])
-
-		const checkDuplicate = checkDuplicateResultArray.filter(dbCheck => dbCheck.rows.length)
-		if (checkDuplicate.length) this.uniqueIDGenerator(userType, email) 
-
-		return id
-	}
-
 	async signup(input) {
 		try {
-			const { userType, ...withoutUserTypeInput } = input
-			const usersTable = userType === 'caregiver'
-				? `${databaseSchema}.caregiver`
-				: `${databaseSchema}.key_contact`
-			let { email, password } = withoutUserTypeInput
+			let { email, password } = input
 			email = email.toLowerCase()
 
 			const checkDuplicateEmailColumns = [
-				'email',
+				'email'
 			]
 			const checkDuplicateEmailQuery = createSelectQuery(checkDuplicateEmailColumns, usersTable, 'email', email)
 			const checkDuplicateEmailResult = await this.context.postgres.query(checkDuplicateEmailQuery)
 
-			const userTypeString = userType === 'caregiver' ? 'caregiver' : 'key contact'
-			if (checkDuplicateEmailResult.rows.length) throw `A ${userTypeString} with this email already exists.`
+			if (checkDuplicateEmailResult.rows.length) throw 'A user with this email already exists.'
 
-			const id = await this.uniqueIDGenerator(userType, email)
 			const hashedPassword = await encryptPassword(password)
 			const insertUserObject = {
-				...withoutUserTypeInput,
-				id: id,
+				...input,
 				password: hashedPassword,
 				email: email,
 			}
@@ -84,11 +48,7 @@ class KeyContactDB extends DataSource {
 
 	async login(input) {
 		try {
-			const { userType, ...withoutUserTypeInput } = input
-			const usersTable = userType === 'caregiver'
-				? `${databaseSchema}.caregiver`
-				: `${databaseSchema}.key_contact`
-			let { email, password } = withoutUserTypeInput
+			let { email, password } = input
 			email = email.toLowerCase()
 
 			const getUserColumns = [
@@ -100,15 +60,13 @@ class KeyContactDB extends DataSource {
 			]
 			const getUserQuery = createSelectQuery(getUserColumns, usersTable, 'email', email)
 			const getUserResult = await this.context.postgres.query(getUserQuery)
-			const userTypeString = userType === 'caregiver' ? 'caregiver' : 'key contact'
-			if (!getUserResult.rows.length) throw `A ${userTypeString} with this email doesn't exist`
+			if (!getUserResult.rows.length) throw "A user with this email doesn't exist"
 
 			const { id: user_id, password: dbPassword } = getUserResult.rows[0]
 			if (!await comparePassword(password, dbPassword)) throw 'Incorrect password'
 
 			const tokenData = {
-				user_id: user_id,
-				userType: userType,
+				user_id: user_id
 			}
 			const myJWTToken = await createCookie(tokenData)
 			setCookie(myJWTToken, this.context.req.res)
@@ -129,8 +87,6 @@ class KeyContactDB extends DataSource {
 			const { token, exp, iat } = jwtCookie
 			const { user_id } = jwtCookie.data
 
-			console.log('jwt cookie data: ', jwtCookie.data)
-
 			const blacklistJWTObject = {
 				user_id: user_id,
 				token: token,
@@ -139,9 +95,6 @@ class KeyContactDB extends DataSource {
 			}
 
 			const blacklistJWTQuery = createInsertQuery(blacklistJWTObject, blacklistTable)
-
-			console.log('blacklist query', blacklistJWTQuery)
-
 			await this.context.postgres.query(blacklistJWTQuery)
 
 			return { message: 'success' }
@@ -181,4 +134,4 @@ class KeyContactDB extends DataSource {
 	}
 }
 
-module.exports = KeyContactDB
+module.exports = CaregiverDB

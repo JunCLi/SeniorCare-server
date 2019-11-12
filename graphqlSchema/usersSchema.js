@@ -1,6 +1,11 @@
 const { gql } = require('apollo-server-express')
 
 module.exports = gql`
+	enum UserType {
+		caregiver
+		keyContact
+	}
+
 	type QueryPlaceholder {
 		id: ID
 	}
@@ -28,11 +33,14 @@ module.exports = gql`
 		password: String!
 		firstName: String!
 		lastName: String!
+		phoneNumber: String!
+		userType: UserType!
 	}
 
 	input LoginObject {
 		email: String!
 		password: String!
+		userType: UserType!
 	}
 
 	type Response {
