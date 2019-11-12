@@ -129,8 +129,6 @@ class KeyContactDB extends DataSource {
 			const { token, exp, iat } = jwtCookie
 			const { user_id } = jwtCookie.data
 
-			console.log('jwt cookie data: ', jwtCookie.data)
-
 			const blacklistJWTObject = {
 				user_id: user_id,
 				token: token,
@@ -139,9 +137,6 @@ class KeyContactDB extends DataSource {
 			}
 
 			const blacklistJWTQuery = createInsertQuery(blacklistJWTObject, blacklistTable)
-
-			console.log('blacklist query', blacklistJWTQuery)
-
 			await this.context.postgres.query(blacklistJWTQuery)
 
 			return { message: 'success' }
