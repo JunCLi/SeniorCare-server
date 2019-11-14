@@ -6,6 +6,8 @@ module.exports = gql`
 		keyContact
 	}
 
+	scalar Date
+
 	type QueryPlaceholder {
 		id: ID
 	}
@@ -19,6 +21,34 @@ module.exports = gql`
 		email: String
 		first_name: String
 		last_name: String
+		userType: UserType
+	}
+
+	type Caregiver {
+		user_id: ID!
+		email: String
+		date_created: Date
+		last_modified: Date
+		first_name: String
+		last_name: String
+		avatar: String
+		phone_number: String
+		birthdate: String
+		location: String
+		years_experience: Int
+		description: String
+		gender: String
+		availability: String
+		average_rating: Float
+		hourly_rate: Int
+	}
+
+	type KeyContact {
+		user_id: ID
+    fullname: String
+    avatar: String
+    phone_number: String
+    email: String
 	}
 
 	extend type Mutation {
@@ -50,7 +80,6 @@ module.exports = gql`
 	type LoginResponse {
 		message: String!
 		token: String!
-		user_id: ID!
 		user: User!
 	}
 `

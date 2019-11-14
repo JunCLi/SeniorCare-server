@@ -47,12 +47,18 @@ class KeyContactDB extends DataSource {
 		return id
 	}
 
+	checkUsersTable(userType) {
+		const usersTable = userType === 'caregiver'
+			? `${databaseSchema}.caregiver`
+			: `${databaseSchema}.key_contact`
+
+		return usersTable
+	}
+
 	async signup(input) {
 		try {
 			const { userType, ...withoutUserTypeInput } = input
-			const usersTable = userType === 'caregiver'
-				? `${databaseSchema}.caregiver`
-				: `${databaseSchema}.key_contact`
+			const usersTable = this.checkUsersTable(userType)
 			let { email, password } = withoutUserTypeInput
 			email = email.toLowerCase()
 
@@ -85,9 +91,7 @@ class KeyContactDB extends DataSource {
 	async login(input) {
 		try {
 			const { userType, ...withoutUserTypeInput } = input
-			const usersTable = userType === 'caregiver'
-				? `${databaseSchema}.caregiver`
-				: `${databaseSchema}.key_contact`
+			const usersTable = this.checkUsersTable(userType)
 			let { email, password } = withoutUserTypeInput
 			email = email.toLowerCase()
 
@@ -156,8 +160,9 @@ class KeyContactDB extends DataSource {
 		}
 	}
 
-	async getUserFromId(user_id) {
+	async getUserFromId(user_id, userType) {
 		try {
+			const usersTable = this.checkUsersTable(userType)
 			const getUserColumns = [
 				'email',
 				'first_name',
@@ -169,6 +174,7 @@ class KeyContactDB extends DataSource {
 			return { 
 				...getUserResult.rows[0],
 				user_id: user_id,
+				userType: userType,
 			}
 		} catch(err) {
 			throw err
