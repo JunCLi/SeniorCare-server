@@ -1,12 +1,6 @@
 const caregiverSeeds = [
   {
-		id: 'ca-nic-bRbEFAdRpPihA47EZ4kL',
-		first_name: 'Nick',
-		last_name: ' Nurse',
-    email: 'nicknurse@basketball.com',
-		password: '$2b$12$fNnGo60D/19iB6U0yKg8H.jzp.vlKR3oAQNUVJsX3uKz9qeihZSyC',
-		phone_number: '905-123-4567',
-		location: 'South Core, TO',
+		user_id: 'ca-nic-bRbEFAdRpPihA47EZ4kL',
 		birthdate: '1967-07-24',
 		gender: 'MALE',
 		years_experience: 10,
@@ -14,16 +8,9 @@ const caregiverSeeds = [
 		average_rating: '3.83',
 		hourly_rate: 14,
 		availability: 'LIVEOUT',
-		avatar: 'https://www.catster.com/wp-content/uploads/2018/05/A-gray-cat-crying-looking-upset.jpg',
   },
   {
-		id: 'ca-mik-hyJ1YCv5diQct6eB.LH5',
-		first_name: 'Mike',
-		last_name: 'Babcock',
-    email: 'mikebabcock@hockey.com',
-		password: '$2b$12$rglqSuxQbiGZJJy/DtKwbuDsEv55RzpcTw2iDmd9ccy8vIrukCCrK',
-		phone_number: '905-456-7890',
-		location: 'Corktown, TO',
+		user_id: 'ca-mik-hyJ1YCv5diQct6eB.LH5',
 		birthdate: '1963-04-29',
 		gender: 'MALE',
 		years_experience: 18,
@@ -31,16 +18,9 @@ const caregiverSeeds = [
 		average_rating: '4.20',
 		hourly_rate: 22,
 		availability: 'LIVEIN',
-		avatar: 'https://images.pexels.com/photos/617278/pexels-photo-617278.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
   },
 	{
-		id: 'ca-mar-zrEODfqusvw4e1HLp8vU',
-		first_name: 'Marie-Philip',
-		last_name: 'Poulin',
-    email: 'mariepoulin@hockey.com',
-		password: '$2b$12$g6E5here.8d2AKSFA/8xPeDW4ZajdKDvVJ.QJklm9wZ6IE8U9OVom',
-		phone_number: '905-321-9876',
-		location: 'Kensington, TO',
+		user_id: 'ca-mar-zrEODfqusvw4e1HLp8vU',
 		birthdate: '1991-03-28',
 		gender: 'FEMALE',
 		years_experience: 7,
@@ -48,7 +28,6 @@ const caregiverSeeds = [
 		average_rating: '3.91',
 		hourly_rate: 15,
 		availability: 'LIVEOUT',
-		avatar: 'https://amp.businessinsider.com/images/55c906efdd0895b0558b45bc-1136-852.jpg',
 	}
 ]
 

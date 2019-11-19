@@ -3,7 +3,7 @@ const databaseSchema = 'senior_care'
 exports.up = pgm => {
 
 	pgm.sql(`
-		CREATE TABLE "${databaseSchema}"."key_contact" (
+		CREATE TABLE "${databaseSchema}"."users" (
 			"id" VARCHAR(255) PRIMARY KEY,
 			"email" VARCHAR(255) NOT NULL,
 			"password" VARCHAR(255) NOT NULL,
@@ -13,29 +13,29 @@ exports.up = pgm => {
 			"last_name" VARCHAR(128),
 			"phone_number" VARCHAR(64),
 			"avatar" VARCHAR(512),
-			"location" VARCHAR(255)
+			"location" VARCHAR(255),
+			"user_type" VARCHAR(16)
+		)
+	`)
+
+	pgm.sql(`
+		CREATE TABLE "${databaseSchema}"."key_contact" (
+			"user_id" VARCHAR(255) PRIMARY KEY,
+			FOREIGN KEY (user_id) REFERENCES ${databaseSchema}.users (id)
 		);
 	`)
 
 	pgm.sql(`
     CREATE TABLE "${databaseSchema}"."caregiver" (
-      "id" VARCHAR(255) PRIMARY KEY,
-      "email" VARCHAR(255) NOT NULL,
-      "password" VARCHAR(255) NOT NULL,
-			"date_created" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-			"last_modified" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-			"first_name" VARCHAR(128),
-			"last_name" VARCHAR(128),
-			"avatar" VARCHAR(512),
-			"phone_number" VARCHAR(64),
+			"user_id" VARCHAR(255) PRIMARY KEY,
 			"birthdate" VARCHAR(64),
-			"location" VARCHAR(255),
 			"years_experience" INT,
 			"description" TEXT,
 			"gender" VARCHAR(32),
 			"availability" VARCHAR(10),
 			"average_rating" FLOAT(2),
-			"hourly_rate" INT 
+			"hourly_rate" INT,
+			FOREIGN KEY (user_id) REFERENCES ${databaseSchema}.users (id)
     );
 	`)
 
@@ -64,7 +64,7 @@ exports.up = pgm => {
 			"medical_condition" TEXT,
 			"bio" TEXT,
 			"avatar" TEXT,
-			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (id)
+			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (user_id)
 		);
 	`)
 
@@ -87,7 +87,7 @@ exports.up = pgm => {
 			"cig_smoking" BOOLEAN,
 			"pets" BOOLEAN,
 			"cannabis" BOOLEAN,
-			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (id)
+			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (user_id)
 		);
 	`)
 
@@ -96,8 +96,8 @@ exports.up = pgm => {
 			"id" SERIAL PRIMARY KEY,
 			"caregiver_id" VARCHAR(255),
 			"key_contact_id" VARCHAR(255),
-			FOREIGN KEY (caregiver_id) REFERENCES ${databaseSchema}.caregiver (id),
-			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (id)
+			FOREIGN KEY (caregiver_id) REFERENCES ${databaseSchema}.caregiver (user_id),
+			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (user_id)
 		);
 	`)
 
@@ -124,8 +124,8 @@ exports.up = pgm => {
 			"caregiver_id" VARCHAR(255),
 			"keycontact_id" VARCHAR(255),
 			"date_created" DATE NOT NULL DEFAULT CURRENT_DATE,
-			FOREIGN KEY (caregiver_id) REFERENCES ${databaseSchema}.caregiver (id),
-			FOREIGN KEY (keycontact_id) REFERENCES ${databaseSchema}.key_contact (id)
+			FOREIGN KEY (caregiver_id) REFERENCES ${databaseSchema}.caregiver (user_id),
+			FOREIGN KEY (keycontact_id) REFERENCES ${databaseSchema}.key_contact (user_id)
 		);
 	`)
 
@@ -134,8 +134,8 @@ exports.up = pgm => {
 			"id" SERIAL PRIMARY KEY,
 			"caregiver_id" VARCHAR(255),
 			"key_contact_id" VARCHAR(255),
-			FOREIGN KEY (caregiver_id) REFERENCES ${databaseSchema}.caregiver (id),
-			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (id)
+			FOREIGN KEY (caregiver_id) REFERENCES ${databaseSchema}.caregiver (user_id),
+			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (user_id)
 		);
 	`)
 

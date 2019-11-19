@@ -2,6 +2,7 @@ const { Pool } = require('pg')
 const squel = require('squel').useFlavour('postgres')
 const config = require('../config/development.json')
 
+const userSeeds = require('./userSeeds')
 const caregiverSeeds = require('./caregiverSeeds')
 const keyContactSeeds = require('./keyContactSeeds')
 
@@ -16,6 +17,15 @@ const seed = async () => {
     console.log('Seeding tables...')
 
     await Promise.all(
+			userSeeds.map(seed =>
+        pg.query(
+          squel
+            .insert()
+            .into(`${databaseSchema}.users`)
+            .setFields(seed)
+            .toParam()
+        )
+			),
       caregiverSeeds.map(seed =>
         pg.query(
           squel

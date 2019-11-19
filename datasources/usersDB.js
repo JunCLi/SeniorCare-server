@@ -6,7 +6,7 @@ const { createCookie, setCookie, retrieveCookie } = require('../utils/authentica
 const { createInsertQuery, createUpdateQuery, createSelectQuery } = require('../utils/DSHelperFunctions/makeQueries')
 
 const databaseSchema = 'senior_care'
-// const usersTable = `${databaseSchema}.key_contact`
+const usersTableDefault = `${databaseSchema}.users`
 const blacklistTable = `${databaseSchema}.blacklist_jwt`
 
 class KeyContactDB extends DataSource {
@@ -27,22 +27,16 @@ class KeyContactDB extends DataSource {
 		const idDateComposite = hashedDate.split('$').reverse()[0].substring(0, 20)
 		return `${idTypeComposite}-${idEmailComposite}-${idDateComposite}`
 	}
-	
+
 	async uniqueIDGenerator(userType, email) {
 		const id = await this.userIDGenerator(userType, email)
 
 		const checkIDColumns = [
 			'id',
 		]
-		const checkDuplicateCaregiverQuery = createSelectQuery(checkIDColumns, `${databaseSchema}.caregiver`, 'id', id)
-		const checkDuplicateKeyContactQuery = createSelectQuery(checkIDColumns, `${databaseSchema}.key_contact`, 'id', id)
-		const checkDuplicateResultArray = await Promise.all([
-			this.context.postgres.query(checkDuplicateCaregiverQuery),
-			this.context.postgres.query(checkDuplicateKeyContactQuery)
-		])
-
-		const checkDuplicate = checkDuplicateResultArray.filter(dbCheck => dbCheck.rows.length)
-		if (checkDuplicate.length) this.uniqueIDGenerator(userType, email) 
+		const checkDuplicateIDQuery = createSelectQuery(checkIDColumns, usersTableDefault, 'id', id)
+		const checkDuplicateQueryResult = await this.context.postgres.query(checkDuplicateIDQuery)
+		if (checkDuplicateQueryResult.rows.length) this.uniqueIDGenerator(userType, email)
 
 		return id
 	}
@@ -57,30 +51,33 @@ class KeyContactDB extends DataSource {
 
 	async signup(input) {
 		try {
-			const { userType, ...withoutUserTypeInput } = input
-			const usersTable = this.checkUsersTable(userType)
-			let { email, password } = withoutUserTypeInput
+			let { email, password, userType } = input
+			const usersTypeTable = this.checkUsersTable(userType)
 			email = email.toLowerCase()
 
 			const checkDuplicateEmailColumns = [
 				'email',
 			]
-			const checkDuplicateEmailQuery = createSelectQuery(checkDuplicateEmailColumns, usersTable, 'email', email)
+			const checkDuplicateEmailQuery = createSelectQuery(checkDuplicateEmailColumns, usersTableDefault, 'email', email)
 			const checkDuplicateEmailResult = await this.context.postgres.query(checkDuplicateEmailQuery)
-
-			const userTypeString = userType === 'caregiver' ? 'caregiver' : 'key contact'
-			if (checkDuplicateEmailResult.rows.length) throw `A ${userTypeString} with this email already exists.`
+			if (checkDuplicateEmailResult.rows.length) throw `A user with this email already exists.`
 
 			const id = await this.uniqueIDGenerator(userType, email)
 			const hashedPassword = await encryptPassword(password)
 			const insertUserObject = {
-				...withoutUserTypeInput,
+				...input,
 				id: id,
 				password: hashedPassword,
 				email: email,
 			}
-			const insertUserQuery = createInsertQuery(insertUserObject, usersTable)
+			const insertUserQuery = createInsertQuery(insertUserObject, usersTableDefault)
 			await this.context.postgres.query(insertUserQuery)
+
+			const insertUsersTypeObject = {
+				user_id: id,
+			}
+			const insertUsersTypeQuery = createInsertQuery(insertUsersTypeObject, usersTypeTable)
+			await this.context.postgres.query(insertUsersTypeQuery)
 
 			return { message: 'success' }
 		} catch(err) {
@@ -90,9 +87,7 @@ class KeyContactDB extends DataSource {
 
 	async login(input) {
 		try {
-			const { userType, ...withoutUserTypeInput } = input
-			const usersTable = this.checkUsersTable(userType)
-			let { email, password } = withoutUserTypeInput
+			let { email, password } = input
 			email = email.toLowerCase()
 
 			const getUserColumns = [
@@ -101,13 +96,16 @@ class KeyContactDB extends DataSource {
 				'first_name',
 				'last_name',
 				'password',
+				'user_type',
 			]
-			const getUserQuery = createSelectQuery(getUserColumns, usersTable, 'email', email)
+			const getUserQuery = createSelectQuery(getUserColumns, usersTableDefault, 'email', email)
 			const getUserResult = await this.context.postgres.query(getUserQuery)
-			const userTypeString = userType === 'caregiver' ? 'caregiver' : 'key contact'
-			if (!getUserResult.rows.length) throw `A ${userTypeString} with this email doesn't exist`
+			const userType = getUserResult.rows.length && getUserResult.rows[0].user_type
 
-			const { id: user_id, password: dbPassword } = getUserResult.rows[0]
+			const userTypeString = userType === 'caregiver' ? 'caregiver' : 'key contact'
+			if (!userType) throw `A ${userTypeString} with this email doesn't exist`
+
+			const { id: user_id, password: dbPassword, first_name, last_name } = getUserResult.rows[0]
 			if (!await comparePassword(password, dbPassword)) throw 'Incorrect password'
 
 			const tokenData = {
@@ -119,7 +117,12 @@ class KeyContactDB extends DataSource {
 
 			return {
 				message: 'success',
-				user_id: user_id,
+				user: {
+					email: email,
+					user_id: user_id,
+					first_name: first_name,
+					last_name: last_name,
+				},
 				token: myJWTToken,
 			}
 		} catch(err) {
@@ -160,26 +163,26 @@ class KeyContactDB extends DataSource {
 		}
 	}
 
-	async getUserFromId(user_id, userType) {
-		try {
-			const usersTable = this.checkUsersTable(userType)
-			const getUserColumns = [
-				'email',
-				'first_name',
-				'last_name',
-			]
-			const getUserQuery = createSelectQuery(getUserColumns, usersTable, 'id', user_id)
-			const getUserResult = await this.context.postgres.query(getUserQuery)
+	// async getUserFromId(user_id, userType) {
+	// 	try {
+	// 		const usersTable = this.checkUsersTable(userType)
+	// 		const getUserColumns = [
+	// 			'email',
+	// 			'first_name',
+	// 			'last_name',
+	// 		]
+	// 		const getUserQuery = createSelectQuery(getUserColumns, usersTable, 'id', user_id)
+	// 		const getUserResult = await this.context.postgres.query(getUserQuery)
 
-			return { 
-				...getUserResult.rows[0],
-				user_id: user_id,
-				userType: userType,
-			}
-		} catch(err) {
-			throw err
-		}
-	}
+	// 		return { 
+	// 			...getUserResult.rows[0],
+	// 			user_id: user_id,
+	// 			userType: userType,
+	// 		}
+	// 	} catch(err) {
+	// 		throw err
+	// 	}
+	// }
 }
 
 module.exports = KeyContactDB
