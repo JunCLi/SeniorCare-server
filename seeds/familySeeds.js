@@ -1,4 +1,4 @@
-const keyContactSeeds = [
+const familySeeds = [
 	{
 		user_id: 'kc-vdu-bRbEFAdRpPihA47EZ4kL',
 	},
@@ -16,4 +16,4 @@ const keyContactSeeds = [
 	},
 ]
 
-module.exports = keyContactSeeds
+module.exports = familySeeds

@@ -3,7 +3,7 @@ const { gql } = require('apollo-server-express')
 module.exports = gql`
 	enum UserType {
 		caregiver
-		keyContact
+		family
 	}
 
 	scalar Date
@@ -17,33 +17,18 @@ module.exports = gql`
 	}
 
 	type User {
-		user_id: ID!
+		user_id: ID
 		email: String
 		first_name: String
 		last_name: String
+		date_created: Date
+		last_modified: Date
+		phone_number: String
+		location: String
 		userType: UserType
 	}
 
-	type Caregiver {
-		user_id: ID!
-		email: String
-		date_created: Date
-		last_modified: Date
-		first_name: String
-		last_name: String
-		avatar: String
-		phone_number: String
-		birthdate: String
-		location: String
-		years_experience: Int
-		description: String
-		gender: String
-		availability: String
-		average_rating: Float
-		hourly_rate: Int
-	}
-
-	type KeyContact {
+	type Family {
 		user_id: ID
     fullname: String
     avatar: String
@@ -70,7 +55,6 @@ module.exports = gql`
 	input LoginObject {
 		email: String!
 		password: String!
-		userType: UserType!
 	}
 
 	type Response {

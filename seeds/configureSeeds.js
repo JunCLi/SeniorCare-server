@@ -4,7 +4,7 @@ const config = require('../config/development.json')
 
 const userSeeds = require('./userSeeds')
 const caregiverSeeds = require('./caregiverSeeds')
-const keyContactSeeds = require('./keyContactSeeds')
+const familySeeds = require('./familySeeds')
 
 const databaseSchema = 'senior_care'
 
@@ -35,11 +35,11 @@ const seed = async () => {
             .toParam()
         )
 			),
-      keyContactSeeds.map(seed =>
+      familySeeds.map(seed =>
         pg.query(
           squel
             .insert()
-            .into(`${databaseSchema}.key_contact`)
+            .into(`${databaseSchema}.family`)
             .setFields(seed)
             .toParam()
         )

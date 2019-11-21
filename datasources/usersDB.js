@@ -9,7 +9,7 @@ const databaseSchema = 'senior_care'
 const usersTableDefault = `${databaseSchema}.users`
 const blacklistTable = `${databaseSchema}.blacklist_jwt`
 
-class KeyContactDB extends DataSource {
+class UsersDB extends DataSource {
 	constructor() {
 		super()
 	}
@@ -44,7 +44,7 @@ class KeyContactDB extends DataSource {
 	checkUsersTable(userType) {
 		const usersTable = userType === 'caregiver'
 			? `${databaseSchema}.caregiver`
-			: `${databaseSchema}.key_contact`
+			: `${databaseSchema}.family`
 
 		return usersTable
 	}
@@ -69,6 +69,7 @@ class KeyContactDB extends DataSource {
 				id: id,
 				password: hashedPassword,
 				email: email,
+				status: 'unconfirmed',
 			}
 			const insertUserQuery = createInsertQuery(insertUserObject, usersTableDefault)
 			await this.context.postgres.query(insertUserQuery)
@@ -102,7 +103,7 @@ class KeyContactDB extends DataSource {
 			const getUserResult = await this.context.postgres.query(getUserQuery)
 			const userType = getUserResult.rows.length && getUserResult.rows[0].user_type
 
-			const userTypeString = userType === 'caregiver' ? 'caregiver' : 'key contact'
+			const userTypeString = userType === 'caregiver' ? 'caregiver' : 'family'
 			if (!userType) throw `A ${userTypeString} with this email doesn't exist`
 
 			const { id: user_id, password: dbPassword, first_name, last_name } = getUserResult.rows[0]
@@ -155,34 +156,41 @@ class KeyContactDB extends DataSource {
 	async getLoggedUser(input) {
 		try {
 			const tokenData = await authenticate(this.context.req, blacklistTable, this.context.postgres)
-			const { user_id } = tokenData
+			const { user_id, userType } = tokenData
 
-			return await this.getUserFromId(user_id)
+			const userDetails = await this.getUserDetails(user_id)
+
+			return {
+				user_id,
+				...userDetails,
+			}
 		} catch(err) {
 			throw err
 		}
 	}
 
-	// async getUserFromId(user_id, userType) {
-	// 	try {
-	// 		const usersTable = this.checkUsersTable(userType)
-	// 		const getUserColumns = [
-	// 			'email',
-	// 			'first_name',
-	// 			'last_name',
-	// 		]
-	// 		const getUserQuery = createSelectQuery(getUserColumns, usersTable, 'id', user_id)
-	// 		const getUserResult = await this.context.postgres.query(getUserQuery)
+	async getUserDetails(user_id) {
+		try {
+			const getUserColumns = [
+				'email',
+				'first_name',
+				'last_name',
+				'user_type',
+				'date_created',
+				'last_modified',
+				'phone_number',
+				'avatar',
+				'location',
+			]
+			const getUserQuery = createSelectQuery(getUserColumns, usersTableDefault, 'id', user_id)
+			const getUserResult = await this.context.postgres.query(getUserQuery)
 
-	// 		return { 
-	// 			...getUserResult.rows[0],
-	// 			user_id: user_id,
-	// 			userType: userType,
-	// 		}
-	// 	} catch(err) {
-	// 		throw err
-	// 	}
-	// }
+
+			return getUserResult.rows[0]
+		} catch(err) {
+			throw err
+		}
+	}
 }
 
-module.exports = KeyContactDB
+module.exports = UsersDB

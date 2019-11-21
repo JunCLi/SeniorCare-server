@@ -11,6 +11,7 @@ exports.up = pgm => {
 			"last_modified" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 			"first_name" VARCHAR(128),
 			"last_name" VARCHAR(128),
+			"status" VARCHAR(16) NOT NULL,
 			"phone_number" VARCHAR(64),
 			"avatar" VARCHAR(512),
 			"location" VARCHAR(255),
@@ -19,7 +20,7 @@ exports.up = pgm => {
 	`)
 
 	pgm.sql(`
-		CREATE TABLE "${databaseSchema}"."key_contact" (
+		CREATE TABLE "${databaseSchema}"."family" (
 			"user_id" VARCHAR(255) PRIMARY KEY,
 			FOREIGN KEY (user_id) REFERENCES ${databaseSchema}.users (id)
 		);
@@ -52,7 +53,7 @@ exports.up = pgm => {
 	pgm.sql(`
 		CREATE TABLE "${databaseSchema}"."senior" (
 			"id" SERIAL PRIMARY KEY,
-			"key_contact_id" VARCHAR(255),
+			"family_id" VARCHAR(255),
 			"first_name" VARCHAR(128),
 			"last_name" VARCHAR(128),
 			"date_created" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_DATE,
@@ -64,14 +65,14 @@ exports.up = pgm => {
 			"medical_condition" TEXT,
 			"bio" TEXT,
 			"avatar" TEXT,
-			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (user_id)
+			FOREIGN KEY (family_id) REFERENCES ${databaseSchema}.family (user_id)
 		);
 	`)
 
 	pgm.sql(`
 		CREATE TABLE "${databaseSchema}"."job_posting" (
 			"id" SERIAL PRIMARY KEY,
-			"key_contact_id" VARCHAR(255),
+			"family_id" VARCHAR(255),
 			"date_created" DATE NOT NULL DEFAULT CURRENT_DATE,
 			"title" VARCHAR(64) NOT NULL,
 			"start_date" DATE NOT NULL,
@@ -87,7 +88,7 @@ exports.up = pgm => {
 			"cig_smoking" BOOLEAN,
 			"pets" BOOLEAN,
 			"cannabis" BOOLEAN,
-			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (user_id)
+			FOREIGN KEY (family_id) REFERENCES ${databaseSchema}.family (user_id)
 		);
 	`)
 
@@ -95,9 +96,9 @@ exports.up = pgm => {
 		CREATE TABLE "${databaseSchema}"."caregiver_reviews" (
 			"id" SERIAL PRIMARY KEY,
 			"caregiver_id" VARCHAR(255),
-			"key_contact_id" VARCHAR(255),
+			"family_id" VARCHAR(255),
 			FOREIGN KEY (caregiver_id) REFERENCES ${databaseSchema}.caregiver (user_id),
-			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (user_id)
+			FOREIGN KEY (family_id) REFERENCES ${databaseSchema}.family (user_id)
 		);
 	`)
 
@@ -122,10 +123,10 @@ exports.up = pgm => {
 			"id" SERIAL PRIMARY KEY,
 			"jobpost_id" INT NOT NULL,
 			"caregiver_id" VARCHAR(255),
-			"keycontact_id" VARCHAR(255),
+			"family_id" VARCHAR(255),
 			"date_created" DATE NOT NULL DEFAULT CURRENT_DATE,
 			FOREIGN KEY (caregiver_id) REFERENCES ${databaseSchema}.caregiver (user_id),
-			FOREIGN KEY (keycontact_id) REFERENCES ${databaseSchema}.key_contact (user_id)
+			FOREIGN KEY (family_id) REFERENCES ${databaseSchema}.family (user_id)
 		);
 	`)
 
@@ -133,9 +134,9 @@ exports.up = pgm => {
 		CREATE TABLE "${databaseSchema}"."conversations" (
 			"id" SERIAL PRIMARY KEY,
 			"caregiver_id" VARCHAR(255),
-			"key_contact_id" VARCHAR(255),
+			"family_id" VARCHAR(255),
 			FOREIGN KEY (caregiver_id) REFERENCES ${databaseSchema}.caregiver (user_id),
-			FOREIGN KEY (key_contact_id) REFERENCES ${databaseSchema}.key_contact (user_id)
+			FOREIGN KEY (family_id) REFERENCES ${databaseSchema}.family (user_id)
 		);
 	`)
 
