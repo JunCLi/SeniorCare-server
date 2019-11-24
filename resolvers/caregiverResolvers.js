@@ -15,8 +15,12 @@ module.exports = {
 				userDetails: userDetails[index],
 				caregiverDetails: caregiver,
 			}))
+			
+			const sortedCaregivers = caregivers.sort((a, b) => {
+				return b.userDetails.last_modified - a.userDetails.last_modified
+			})
 
-			return caregivers
+			return sortedCaregivers
 		},
 	}
 }

@@ -23,6 +23,7 @@ module.exports = gql`
 		last_name: String
 		date_created: Date
 		last_modified: Date
+		avatar: String
 		phone_number: String
 		location: String
 		userType: UserType
