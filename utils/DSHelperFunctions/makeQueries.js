@@ -23,32 +23,50 @@ module.exports.createSelectAndQuery = (selectColumns, table, selectors, selector
 	const whereConditionArray = selectors.map( (selector, index) => (
 		`${camelToSnake(selector)} ${conditions ? conditions[index] : '=' } '${selectorValues[index]}'`
 		))
-		const whereConditionString = whereConditionArray.join(' AND ')
-		
-		if (selectors.length) {
-			return {
-				text: `SELECT ${queryString} FROM ${table} WHERE ${whereConditionString}`
-			}
-		} else {
-			return {
-				text: `SELECT ${queryString} FROM ${table}`
-			}
+	const whereConditionString = whereConditionArray.join(' AND ')
+	
+	if (selectors.length) {
+		return {
+			text: `SELECT ${queryString} FROM ${table} WHERE ${whereConditionString}`
+		}
+	} else {
+		return {
+			text: `SELECT ${queryString} FROM ${table}`
 		}
 	}
+}
+
+module.exports.createSelectOrQuery = (selectColumns, table, selectors, selectorValues, conditions) => {
+	const queryString = selectColumns.join(', ')
+	const whereConditionArray = selectors.map( (selector, index) => (
+		`${camelToSnake(selector)} ${conditions ? conditions[index] : '=' } '${selectorValues[index]}'`
+		))
+	const whereConditionString = whereConditionArray.join(' OR ')
 	
-	module.exports.createOffsetSelectQuery = (selectColumns, table, selector, selectorValue, limit, offset) => {
-		const queryString = selectColumns.join(', ')
-	
-		if (selector) {
-			return {
-				text: `SELECT ${queryString} FROM ${table} WHERE ${selector} = '${selectorValue}' LIMIT ${limit} OFFSET ${offset}`
-			}
-		} else {
-			return {
-				text: `SELECT ${queryString} FROM ${table} LIMIT ${limit} OFFSET ${offset}`
-			}
+	if (selectors.length) {
+		return {
+			text: `SELECT ${queryString} FROM ${table} WHERE ${whereConditionString}`
+		}
+	} else {
+		return {
+			text: `SELECT ${queryString} FROM ${table}`
 		}
 	}
+}
+	
+module.exports.createOffsetSelectQuery = (selectColumns, table, selector, selectorValue, limit, offset) => {
+	const queryString = selectColumns.join(', ')
+
+	if (selector) {
+		return {
+			text: `SELECT ${queryString} FROM ${table} WHERE ${selector} = '${selectorValue}' LIMIT ${limit} OFFSET ${offset}`
+		}
+	} else {
+		return {
+			text: `SELECT ${queryString} FROM ${table} LIMIT ${limit} OFFSET ${offset}`
+		}
+	}
+}
 
 module.exports.createInsertQuery = (inputObject, table, returnValues) => {
 	const queryKeys = Object.keys(inputObject)
@@ -60,9 +78,11 @@ module.exports.createInsertQuery = (inputObject, table, returnValues) => {
   ).join(', ')
 
 
+	
   if(returnValues) {
+		const returnString = returnValues.map(returnVal => camelToSnake(returnVal)).join(', ')
     return {
-      text: `INSERT INTO ${table} (${queryString}) VALUES (${queryValuesString}) RETURNING *`,
+      text: `INSERT INTO ${table} (${queryString}) VALUES (${queryValuesString}) RETURNING ${returnString}`,
       values: queryValues
     }
   } else {

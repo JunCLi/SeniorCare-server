@@ -160,6 +160,8 @@ class UsersDB extends DataSource {
 
 			const userDetails = await this.getUserDetails(user_id)
 
+			if (!userDetails) throw 'unregistered user'
+
 			return {
 				user_id,
 				...userDetails,
@@ -184,7 +186,6 @@ class UsersDB extends DataSource {
 			]
 			const getUserQuery = createSelectQuery(getUserColumns, usersTableDefault, 'id', user_id)
 			const getUserResult = await this.context.postgres.query(getUserQuery)
-
 
 			return getUserResult.rows[0]
 		} catch(err) {

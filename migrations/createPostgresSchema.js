@@ -53,18 +53,17 @@ exports.up = pgm => {
 	pgm.sql(`
 		CREATE TABLE "${databaseSchema}"."senior" (
 			"id" SERIAL PRIMARY KEY,
-			"family_id" VARCHAR(255),
-			"first_name" VARCHAR(128),
-			"last_name" VARCHAR(128),
+			"family_id" VARCHAR(255) NOT NULL,
+			"name" VARCHAR(128),
 			"date_created" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_DATE,
 			"last_modified" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 			"birthdate" VARCHAR(64),
 			"gender" VARCHAR(32),
 			"relation" VARCHAR(32),
 			"language" VARCHAR(32),
-			"medical_condition" TEXT,
+			"medical_conditions" TEXT,
 			"bio" TEXT,
-			"avatar" TEXT,
+			"picture" TEXT,
 			FOREIGN KEY (family_id) REFERENCES ${databaseSchema}.family (user_id)
 		);
 	`)
@@ -73,6 +72,7 @@ exports.up = pgm => {
 		CREATE TABLE "${databaseSchema}"."job_posting" (
 			"id" SERIAL PRIMARY KEY,
 			"family_id" VARCHAR(255),
+			"senior_id" VARCHAR(255) NOT NULL,
 			"date_created" DATE NOT NULL DEFAULT CURRENT_DATE,
 			"title" VARCHAR(64) NOT NULL,
 			"start_date" DATE NOT NULL,
@@ -84,8 +84,8 @@ exports.up = pgm => {
 			"availability" VARCHAR(10),
 			"hourly_rate" INT,
 			"gender_pref" VARCHAR(16),
-			"req_drivers_license" BOOLEAN,
-			"cig_smoking" BOOLEAN,
+			"drivers_license" BOOLEAN,
+			"cigarette" BOOLEAN,
 			"pets" BOOLEAN,
 			"cannabis" BOOLEAN,
 			FOREIGN KEY (family_id) REFERENCES ${databaseSchema}.family (user_id)
