@@ -1,7 +1,7 @@
 const userSeeds = [
 	{
 		id: 'ca-nic-bRbEFAdRpPihA47EZ4kL',
-    email: 'nicknurse@basketball.com',
+		email: 'nicknurse@basketball.com',
 		password: '$2b$12$fNnGo60D/19iB6U0yKg8H.jzp.vlKR3oAQNUVJsX3uKz9qeihZSyC',
 		first_name: 'Nick',
 		last_name: 'Nurse',
@@ -12,10 +12,10 @@ const userSeeds = [
 		avatar: 'https://www.catster.com/wp-content/uploads/2018/05/A-gray-cat-crying-looking-upset.jpg',
 		location: 'South Core, TO',
 		user_type: 'caregiver',
-  },
-  {
+	},
+	{
 		id: 'ca-mik-hyJ1YCv5diQct6eB.LH5',
-    email: 'mikebabcock@hockey.com',
+		email: 'mikebabcock@hockey.com',
 		password: '$2b$12$rglqSuxQbiGZJJy/DtKwbuDsEv55RzpcTw2iDmd9ccy8vIrukCCrK',
 		first_name: 'Mike',
 		last_name: 'Babcock',
@@ -26,10 +26,10 @@ const userSeeds = [
 		avatar: 'https://images.pexels.com/photos/617278/pexels-photo-617278.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
 		location: 'Corktown, TO',
 		user_type: 'caregiver',
-  },
+	},
 	{
 		id: 'ca-mar-zrEODfqusvw4e1HLp8vU',
-    email: 'mariepoulin@hockey.com',
+		email: 'mariepoulin@hockey.com',
 		password: '$2b$12$g6E5here.8d2AKSFA/8xPeDW4ZajdKDvVJ.QJklm9wZ6IE8U9OVom',
 		first_name: 'Marie-Philip',
 		last_name: 'Poulin',
@@ -113,4 +113,7 @@ const userSeeds = [
 	},
 ]
 
-module.exports = userSeeds
+module.exports = {
+	table: 'users',
+	seeds: userSeeds,
+}

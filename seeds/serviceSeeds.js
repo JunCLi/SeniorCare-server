@@ -53,4 +53,7 @@ const serviceSeeds = [
 	},
 ]
 
-module.exports = serviceSeeds
+module.exports = {
+	table: 'services',
+	seeds: serviceSeeds,
+}

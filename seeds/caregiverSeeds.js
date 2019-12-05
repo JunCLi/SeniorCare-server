@@ -1,5 +1,5 @@
 const caregiverSeeds = [
-  {
+	{
 		user_id: 'ca-nic-bRbEFAdRpPihA47EZ4kL',
 		birthdate: '1967-07-24',
 		gender: 'male',
@@ -8,8 +8,8 @@ const caregiverSeeds = [
 		average_rating: '3.83',
 		hourly_rate: 14,
 		availability: 'liveout',
-  },
-  {
+	},
+	{
 		user_id: 'ca-mik-hyJ1YCv5diQct6eB.LH5',
 		birthdate: '1963-04-29',
 		gender: 'male',
@@ -18,7 +18,7 @@ const caregiverSeeds = [
 		average_rating: '3.21',
 		hourly_rate: 22,
 		availability: 'livein',
-  },
+	},
 	{
 		user_id: 'ca-mar-zrEODfqusvw4e1HLp8vU',
 		birthdate: '1991-03-28',
@@ -28,7 +28,10 @@ const caregiverSeeds = [
 		average_rating: '4.38',
 		hourly_rate: 15,
 		availability: 'liveout',
-	}
+	},
 ]
 
-module.exports = caregiverSeeds
+module.exports = {
+	table: 'caregiver',
+	seeds: caregiverSeeds,
+}

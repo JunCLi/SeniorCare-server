@@ -103,6 +103,22 @@ exports.up = pgm => {
 	`)
 
 	pgm.sql(`
+		CREATE TABLE "${databaseSchema}"."language" (
+			"id" SERIAL PRIMARY KEY,
+			"title" VARCHAR(64) NOT NULL
+		);
+	`)
+
+	pgm.sql(`
+			CREATE TABLE "${databaseSchema}"."language_senior" (
+				"senior_id" INT NOT NULL,
+				"language_id" INT NOT NULL,
+				FOREIGN KEY (senior_id) REFERENCES ${databaseSchema}.senior (id),
+				FOREIGN KEY (language_id) REFERENCES ${databaseSchema}.language (id)
+			);
+	`)
+
+	pgm.sql(`
 		CREATE TABLE "${databaseSchema}"."services" (
 			"id" SERIAL PRIMARY KEY,
 			"title" VARCHAR(64) NOT NULL
