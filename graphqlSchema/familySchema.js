@@ -12,7 +12,7 @@ module.exports = gql`
 		birthdate: Date
 		relation: String
 		bio: String
-		medicalConditions: String
+		medical_conditions: String
 		language: [String]
 		picture: String
 	}

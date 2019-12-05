@@ -60,7 +60,6 @@ exports.up = pgm => {
 			"birthdate" VARCHAR(64),
 			"gender" VARCHAR(32),
 			"relation" VARCHAR(32),
-			"language" VARCHAR(32),
 			"medical_conditions" TEXT,
 			"bio" TEXT,
 			"picture" TEXT,

@@ -120,3 +120,14 @@ module.exports.createDeleteQuery = (table, selector, selectorValue) => {
 		text: `DELETE FROM ${table} WHERE ${selector} = ${selectorValue}`
 	}
 }
+
+module.exports.createInnerJoinSelect = (selectColumns, table1, table2, joinCondition1, joinCondition2, selector, selectorValue) => {
+	const queryString = selectColumns.join(', ')
+	return {
+		text: `SELECT ${queryString}
+			FROM ${table1}
+			INNER JOIN ${table2}
+			ON ${table1}.${joinCondition1} = ${table2}.${joinCondition2}
+			WHERE ${selector} = '${selectorValue}'`
+	}
+}
