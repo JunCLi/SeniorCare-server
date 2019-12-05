@@ -22,7 +22,6 @@ class JobDB extends DataSource {
 	}
 
 	async submitJobPost(input) {
-		// console.log('input: ', input)
 		const tokenData = await authenticate(this.context.req, blacklistTable, this.context.postgres)
 		const { user_id, userType } = tokenData
 
@@ -33,8 +32,9 @@ class JobDB extends DataSource {
 
 		let seniorId = seniorDetails.id
 		if (!seniorId) {
+			const {id, ...seniorDetailsWOId} = seniorDetails
 			const newSeniorObject = {
-				...seniorDetails,
+				...seniorDetailsWOId,
 				familyId: user_id,
 			}
 			const newSeniorQuery = createInsertQuery(newSeniorObject, seniorTable, ['id'])
