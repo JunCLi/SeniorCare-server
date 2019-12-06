@@ -21,26 +21,9 @@ class JobDB extends DataSource {
 		this.context = config.context
 	}
 
-	async submitJobPost(input) {
-		const tokenData = await authenticate(this.context.req, blacklistTable, this.context.postgres)
-		const { user_id, userType } = tokenData
-
-		if (userType !== 'family') throw 'user type error'
-
-		const { basicInformation, serviceDetails, seniorDetails, houseDetails, caregiverPreferences } = input
+	async submitJobPost(input, seniorId, user_id) {
+		const { basicInformation, serviceDetails, houseDetails, caregiverPreferences } = input
 		const { location, ...basicInformationNoLocation } = basicInformation
-
-		let seniorId = seniorDetails.id
-		if (!seniorId) {
-			const {id, ...seniorDetailsWOId} = seniorDetails
-			const newSeniorObject = {
-				...seniorDetailsWOId,
-				familyId: user_id,
-			}
-			const newSeniorQuery = createInsertQuery(newSeniorObject, seniorTable, ['id'])
-			const newSeniorResult = await this.context.postgres.query(newSeniorQuery)
-			seniorId = newSeniorResult.rows[0].id
-		} 
 
 		const newJobObject = {
 			...basicInformationNoLocation,

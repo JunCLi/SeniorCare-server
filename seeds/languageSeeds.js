@@ -1,15 +1,12 @@
 const languageSeeds = [
 	{
-		id: 1,
-		title: 'English',
+		title: 'english',
 	},
 	{
-		id: 2,
-		title: 'Spanish',
+		title: 'spanish',
 	},
 	{
-		id: 3,
-		title: 'French',
+		title: 'french',
 	},
 ]
 

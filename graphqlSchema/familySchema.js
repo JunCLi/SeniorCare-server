@@ -19,5 +19,17 @@ module.exports = gql`
 
 	extend type Mutation {
 		addSeniorLanguage(language: [String]): Response
+		createSenior(input: SeniorInput): Response
+	}
+
+	input SeniorInput {
+		name: String
+		gender: Gender
+		birthdate: Date
+		relation: String
+		bio: String
+		medicalConditions: String
+		language: [String]
+		picture: String
 	}
 `

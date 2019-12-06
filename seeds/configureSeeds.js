@@ -35,7 +35,7 @@ const seedTable = async (pg, seedsArray, table) => {
 
 const createSeed = async (pg, seedsArray) => {
 	return seedsArray.map(async (seedBundle, index) => (
-		seedBundle.length
+		Array.isArray(seedBundle)
 			? createSeed(pg, seedBundle)
 			: seedTable(pg, seedBundle.seeds, seedBundle.table)
 	))

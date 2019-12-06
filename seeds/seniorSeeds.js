@@ -1,6 +1,5 @@
 const seniorSeeds = [
 	{
-		id: 1,
 		family_id: 'kc-mai-NwAsLDboyLd8OExFvqG8',
 		name: 'Lucinda',
 		date_created: '2019-10-22 00:00:00-05',
@@ -13,7 +12,6 @@ const seniorSeeds = [
 		picture: 'https://ichef.bbci.co.uk/images/ic/960x540/p01bqf7g.jpg',
 	},
 	{
-		id: 2,
 		family_id: 'kc-mai-NwAsLDboyLd8OExFvqG8',
 		name: 'Margaret',
 		date_created: '2019-11-03 00:00:00-05',

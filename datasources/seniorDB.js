@@ -21,9 +21,64 @@ class SeniorDB extends DataSource {
 		this.context = config.context
 	}
 
-	async addSeniorLanguages(input) {
+	async addSeniorLanguages(languageArray, seniorId) {
 		try {
-			console.log('input: ', input)
+			languageArray.forEach(async language => {
+				language = language.toLowerCase()
+				const checkExistingLanguageColumns = [
+					'id',
+					'title',
+				]
+				const checkExistingLanguageQuery = createSelectQuery(checkExistingLanguageColumns, languageTable, 'title', language)
+				const checkExistingLanguageResult = await this.context.postgres.query(checkExistingLanguageQuery)
+
+				let languageId = checkExistingLanguageResult.rows.length
+					? checkExistingLanguageResult.rows[0].id
+					: await this.addLanguage(language)
+
+				const addLanguageSeniorObject = {
+					seniorId,
+					languageId,
+				}
+				const addLanguageSeniorQuery = createInsertQuery(addLanguageSeniorObject, languageSeniorTable)
+				await this.context.postgres.query(addLanguageSeniorQuery)
+			})
+		} catch(err) {
+			throw err
+		}
+	}
+
+	async addLanguage(language) {
+		try {
+			const newLanguageObject = {
+				title: language
+			}
+			const newLanguageQuery = createInsertQuery(newLanguageObject, languageTable, 'id')
+			const newLanguageResult = await this.context.postgres.query(newLanguageQuery)
+			return newLanguageResult.rows[0].id
+		} catch(err) {
+			throw err
+		}
+	}
+
+	async createSenior (seniorDetails, user_id) {
+		try {
+			let seniorId = seniorDetails.id
+			if (!seniorId) {
+				const {id, language, ...prunedSeniorDetails } = seniorDetails
+
+				const newSeniorObject = {
+					...prunedSeniorDetails,
+					familyId: user_id,
+				}
+				const newSeniorQuery = createInsertQuery(newSeniorObject, seniorTable, ['id'])
+				const newSeniorResult = await this.context.postgres.query(newSeniorQuery)
+				seniorId = newSeniorResult.rows[0].id
+
+				this.addSeniorLanguages(language, seniorId)
+			} 
+
+			return seniorId
 		} catch(err) {
 			throw err
 		}

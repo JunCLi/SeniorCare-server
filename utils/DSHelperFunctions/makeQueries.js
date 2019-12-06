@@ -80,7 +80,9 @@ module.exports.createInsertQuery = (inputObject, table, returnValues) => {
 
 	
   if(returnValues) {
-		const returnString = returnValues.map(returnVal => camelToSnake(returnVal)).join(', ')
+		const returnString = Array.isArray(returnValues)
+			? returnValues.map(returnVal => camelToSnake(returnVal)).join(', ')
+			: returnValues
     return {
       text: `INSERT INTO ${table} (${queryString}) VALUES (${queryValuesString}) RETURNING ${returnString}`,
       values: queryValues
