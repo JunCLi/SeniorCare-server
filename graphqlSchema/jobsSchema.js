@@ -23,6 +23,11 @@ module.exports = gql`
 		driving
 		appointments
 		mobility
+		errands
+		mealPrep
+		housekeeping
+		laundry
+		shoppping
 	}
 
 	enum HouseholdNeeds {
@@ -34,11 +39,14 @@ module.exports = gql`
 	}
 
 	extend type Query {
-		getJobForm: JobForm
+		# getJobForm: JobForm
+		getAllUserJobs: [Job]
 	}
 
-	type JobForm {
+	type Job {
 		id: ID
+		familyId: ID
+		dateCreated: Date
 		basicInformation: BasicInformation
 		serviceDetails: ServiceDetails
 		seniorDetails: SeniorDetails
@@ -54,7 +62,6 @@ module.exports = gql`
 	}
 
 	type BasicInformation {
-		position: Position
 		title: String
 		startDate: Date
 		endDate: Date,
@@ -70,32 +77,31 @@ module.exports = gql`
 	}
 
 	type ServiceDetails {
-		position: Position
 		services: [Services]
 		householdNeeds: [HouseholdNeeds]
 	}
 
 	type SeniorDetails {
-		position: Position
+		id: ID
 		name: String
+		date_created: Date
+		last_modified: Date
 		gender: Gender
 		birthdate: Date
 		relation: String
 		bio: String
-		medicalConditions: String
+		medical_conditions: String
 		language: [String]
 		picture: String
 	}
 
 	type HouseDetails {
-		position: Position
 		cigarette: Boolean
 		pets: Boolean
 		cannabis: Boolean
 	}
 
 	type CaregiverPreferences {
-		position: Position
 		availability: Availability
 		genderPref: Gender
 		driversLicense: Boolean
@@ -136,7 +142,7 @@ module.exports = gql`
 	}
 
 	input SeniorDetailsInput {
-		id: ID
+		seniorId: ID
 		name: String
 		gender: Gender
 		birthdate: Date

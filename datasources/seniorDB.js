@@ -63,10 +63,8 @@ class SeniorDB extends DataSource {
 
 	async createSenior (seniorDetails, user_id) {
 		try {
-			let seniorId = seniorDetails.id
+			let {seniorId, language, ...prunedSeniorDetails } = seniorDetails
 			if (!seniorId) {
-				const {id, language, ...prunedSeniorDetails } = seniorDetails
-
 				const newSeniorObject = {
 					...prunedSeniorDetails,
 					familyId: user_id,
@@ -125,6 +123,35 @@ class SeniorDB extends DataSource {
 			)))
 
 			return seniorsWithLanguage
+		} catch(err) {
+			throw err
+		}
+	}
+
+	async getSenior(id) {
+		try {
+			const selectColumns = [
+				'id',
+				'name',
+				'date_created',
+				'last_modified',
+				'gender',
+				'birthdate',
+				'relation',
+				'bio',
+				'medical_conditions',
+				'picture',
+			]
+			const getSeniorQuery = createSelectQuery(selectColumns, seniorTable, 'id', id)
+			const getSeniorResult = await this.context.postgres.query(getSeniorQuery)
+			const languages = await this.getSeniorLanguages(id)
+
+			// console.log('result', getSeniorResult.rows[0])
+			// console.log('languages', languages)
+			return {
+				...getSeniorResult.rows[0],
+				language: languages
+			}
 		} catch(err) {
 			throw err
 		}
