@@ -3,11 +3,11 @@ const { DataSource } = require('apollo-datasource')
 const authenticate = require('../utils/authentication/authenticate')
 const { encryptPassword, comparePassword } = require('../utils/DSHelperFunctions/bcryptFunctions')
 const { createCookie, setCookie, retrieveCookie } = require('../utils/authentication/cookieFunctions')
-const { createInsertQuery, createUpdateQuery, createSelectQuery, createInnerJoinSelect } = require('../utils/DSHelperFunctions/makeQueries')
+const { createInsertQuery, createUpdateQuery, createSelectQuery, createSelectAndQuery, createInnerJoinSelect } = require('../utils/DSHelperFunctions/makeQueries')
 
 const databaseSchema = 'senior_care'
 const jobTable = `${databaseSchema}.job_posting`
-const seniorTable = `${databaseSchema}.senior`
+const applicantsTable = `${databaseSchema}.applicants`
 const servicesTable = `${databaseSchema}.services`
 const servicesJobTable = `${databaseSchema}.services_job`
 const blacklistTable = `${databaseSchema}.blacklist_jwt`
@@ -82,36 +82,84 @@ class JobDB extends DataSource {
 
 	async getAllUserJobs(user_id) {
 		try {
-			const selectColumns = [
-				// 'id',
-				// 'family_id',
-				// 'senior_id',
-				// 'date_created',
-				// 'title',
-				// 'start_date',
-				// 'end_date',
-				// 'address',
-				// 'city',
-				// 'province',
-				// 'postal_code',
-				// 'availability',
-				// 'hourly_rate',
-				// 'gender_pref',
-				// 'drivers_license',
-				// 'cigarette',
-				// 'pets',
-				// 'cannabis',
-				'*'
-			]
 			const getJobPostsQuery = createSelectQuery(['*'], jobTable, 'family_id', user_id)
 			const getJobPostsResult = await this.context.postgres.query(getJobPostsQuery)
-			// console.log('test', getJobPostsResult.rows)
 	
 			return getJobPostsResult.rows
 		} catch (err) {
 			throw err
 		}
+	}
 
+	async getJob (jobId) {
+		try {
+			const getJobPostQuery = createSelectQuery(['*'], jobTable, 'id', jobId)
+			const getJobPostResult = await this.context.postgres.query(getJobPostQuery)
+			return getJobPostResult.rows[0]
+		} catch(err) {
+			throw err
+		}
+	}
+
+	async applyJob(input, user_id) {
+		try {
+			const { jobId, familyId, message } = input
+			const checkDuplicateColumns = [
+				'status'
+			]
+			const checkDuplicateSelectors = [
+				'jobpost_id',
+				'caregiver_id',
+			]
+			const checkDuplicateSelectorValues = [
+				jobId,
+				user_id,
+			]
+			const checkDuplicateQuery = createSelectAndQuery(checkDuplicateColumns, applicantsTable, checkDuplicateSelectors, checkDuplicateSelectorValues)
+			const checkDuplicateResult = await this.context.postgres.query(checkDuplicateQuery)
+			checkDuplicateResult.rows.forEach(duplicate => {
+				if (duplicate.status === 'applied') throw 'duplicate application'
+			})
+
+			const applyJobObject = {
+				jobpost_id: jobId,
+				family_id: familyId,
+				caregiver_id: user_id,
+				status: 'applied',
+				message: message,
+			}
+			const applyJobQuery = createInsertQuery(applyJobObject, applicantsTable)
+			await this.context.postgres.query(applyJobQuery)
+		} catch(err) {
+			throw err
+		}
+	}
+
+	async getJobApplications(familyId, jobId) {
+		try {
+			const getApplicationColumns = [
+				'id',
+				'family_id',
+				'jobpost_id',
+				'caregiver_id',
+				'date_created',
+				'status',
+				'message',
+			]
+			const getApplicantsSelectors = [
+				'family_id',
+				'jobpost_id',
+			]
+			const getApplicantsSelectorValues = [
+				familyId,
+				jobId,
+			]
+			const getApplicantsQuery = createSelectAndQuery(getApplicationColumns, applicantsTable, getApplicantsSelectors, getApplicantsSelectorValues)
+			const getApplicantResult = await this.context.postgres.query(getApplicantsQuery)
+			return getApplicantResult.rows
+		} catch(err) {
+			throw err
+		}
 	}
 }
 

@@ -15,6 +15,7 @@ module.exports = gql`
 
 	extend type Query {
 		getAllCaregivers(input: FilterCaregivers): [Caregiver!]!
+		getApplicants(jobId: ID): [CaregiverC]
 	}
 
 	input FilterCaregivers {
@@ -30,6 +31,12 @@ module.exports = gql`
 		caregiverDetails: CaregiverDetails
 	}
 
+	type CaregiverC {
+		userId: ID!
+		userDetails: UserC
+		caregiverDetails: CaregiverDetailsC
+	}
+
 	type CaregiverDetails {
 		birthdate: String
 		years_experience: Int
@@ -38,5 +45,25 @@ module.exports = gql`
 		availability: Availability
 		average_rating: Float
 		hourly_rate: Int
+	}
+
+	type CaregiverDetailsC {
+		birthdate: String
+		yearsExperience: Int
+		description: String
+		gender: Gender
+		availability: Availability
+		averageRating: Float
+		hourlyRate: Int
+	}
+
+	extend type Mutation {
+		applyJob(input: ApplyJobInput): Response
+	}
+
+	input ApplyJobInput {
+		jobId: ID!
+		familyId: ID!
+		message: String
 	}
 `

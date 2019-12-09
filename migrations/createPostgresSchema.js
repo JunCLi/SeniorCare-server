@@ -137,11 +137,14 @@ exports.up = pgm => {
 		CREATE TABLE "${databaseSchema}"."applicants" (
 			"id" SERIAL PRIMARY KEY,
 			"jobpost_id" INT NOT NULL,
-			"caregiver_id" VARCHAR(255),
 			"family_id" VARCHAR(255),
+			"caregiver_id" VARCHAR(255),
 			"date_created" DATE NOT NULL DEFAULT CURRENT_DATE,
+			"message" TEXT,
+			"status" VARCHAR(64),
 			FOREIGN KEY (caregiver_id) REFERENCES ${databaseSchema}.caregiver (user_id),
-			FOREIGN KEY (family_id) REFERENCES ${databaseSchema}.family (user_id)
+			FOREIGN KEY (family_id) REFERENCES ${databaseSchema}.family (user_id),
+			FOREIGN KEY (jobpost_id) REFERENCES ${databaseSchema}.job_posting (id)
 		);
 	`)
 

@@ -1,10 +1,7 @@
-const camelToSnake = string => (
-	string.replace(/([A-Z])/g, letter => (
-			'_' + letter.toLowerCase()
-	))
-)
+const { camelToSnake, snakeToCamel } = require('../helperFunctions/caseConv') 
 
 module.exports.createSelectQuery = (selectColumns, table, selector, selectorValue) => {
+	selectColumns = selectColumns.map(column => camelToSnake(column))
   const queryString = selectColumns.join(', ')
 
   if (selector) {

@@ -145,9 +145,7 @@ class SeniorDB extends DataSource {
 			const getSeniorQuery = createSelectQuery(selectColumns, seniorTable, 'id', id)
 			const getSeniorResult = await this.context.postgres.query(getSeniorQuery)
 			const languages = await this.getSeniorLanguages(id)
-
-			// console.log('result', getSeniorResult.rows[0])
-			// console.log('languages', languages)
+			
 			return {
 				...getSeniorResult.rows[0],
 				language: languages

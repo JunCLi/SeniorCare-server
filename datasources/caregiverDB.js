@@ -44,6 +44,26 @@ class CaregiverDB extends DataSource {
 		}
 	}
 
+	async getCaregiver(caregiverId) {
+		try {
+			const getCaregiverColumns = [
+				'user_id',
+				'birthdate',
+				'years_experience',
+				'description',
+				'gender',
+				'availability',
+				'average_rating',
+				'hourly_rate',
+			]
+			const getCaregiverQuery = createSelectQuery(getCaregiverColumns, caregiverTable, 'user_id', caregiverId)
+			const getCaregiverResult = await this.context.postgres.query(getCaregiverQuery)
+			return getCaregiverResult.rows[0]
+		} catch (err) {
+			throw err
+		}
+	}
+
 }
 
 module.exports = CaregiverDB

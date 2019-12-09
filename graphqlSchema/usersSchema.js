@@ -29,6 +29,19 @@ module.exports = gql`
 		userType: UserType
 	}
 
+	type UserC {
+		userId: ID
+		email: String
+		firstName: String
+		lastName: String
+		dateCreated: Date
+		lastModified: Date
+		avatar: String
+		phoneNumber: String
+		location: String
+		userType: UserType
+	}
+
 	type Family {
 		user_id: ID
     fullname: String
