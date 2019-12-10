@@ -1,3 +1,5 @@
+const { snakeToCamel } = require('../utils/helperFunctions/caseConv')
+
 module.exports = {
 	Mutation: {
 		async signup(parent, { input }, { dataSources, req, app, postgres }) {
@@ -19,7 +21,7 @@ module.exports = {
 
 	Query: {
 		async getLoggedUser(parent, { input }, { dataSources, req, app, postgres }) {
-			return await dataSources.usersDB.getLoggedUser(input)
+			return snakeToCamel(await dataSources.usersDB.getLoggedUser(input))
 		}
 	}
 }

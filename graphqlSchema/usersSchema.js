@@ -17,19 +17,6 @@ module.exports = gql`
 	}
 
 	type User {
-		user_id: ID
-		email: String
-		first_name: String
-		last_name: String
-		date_created: Date
-		last_modified: Date
-		avatar: String
-		phone_number: String
-		location: String
-		userType: UserType
-	}
-
-	type UserC {
 		userId: ID
 		email: String
 		firstName: String
@@ -43,10 +30,10 @@ module.exports = gql`
 	}
 
 	type Family {
-		user_id: ID
+		userId: ID
     fullname: String
     avatar: String
-    phone_number: String
+    phoneNumber: String
     email: String
 	}
 

@@ -1,3 +1,5 @@
+const { snakeToCamel } = require('../utils/helperFunctions/caseConv')
+
 module.exports = {
 	Mutation: {
 		async addSeniorLanguage(parent, input, { dataSources, req, app, postgres }) {
@@ -7,7 +9,7 @@ module.exports = {
 
 	Query: {
 		async getAllSeniors (parent, input, { dataSources, req, app, postgres }) {
-			return await dataSources.seniorDB.getAllSeniors(input)
+			return snakeToCamel(await dataSources.seniorDB.getAllSeniors(input))
 		},
 	}
 }

@@ -37,14 +37,12 @@ module.exports = {
 				const caregiverDetails = await dataSources.caregiverDB.getAllCaregivers(input)
 				const userDetails = await Promise.all(caregiverDetails.map(caregiver => dataSources.usersDB.getUserDetails(caregiver.user_id)))
 	
-				const caregivers = caregiverDetails.map((caregiver, index) => ({
-					user_id: caregiver.user_id,
-					userDetails: userDetails[index],
-					caregiverDetails: caregiver,
-				}))
+				const caregivers = caregiverDetails.map((caregiver, index) => {
+					return formatApplicants(caregiver.user_id, userDetails[index], caregiver)
+				})
 				
 				const sortedCaregivers = caregivers.sort((a, b) => {
-					return b.userDetails.last_modified - a.userDetails.last_modified
+					return b.userDetails.lastModified - a.userDetails.lastModified
 				})
 	
 				return sortedCaregivers

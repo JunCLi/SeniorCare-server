@@ -79,7 +79,7 @@ const userSeeds = [
 		last_modified: "2019-11-15T21:05:43.397Z",
 		status: 'confirmed',
 		phone_number: '5147466616',
-		avatar: 'https://www.alamtalash.com/assets/img/alam.jpeg',
+		avatar: 'https://avatars1.githubusercontent.com/u/22881406?s=400&v=4',
 		location: 'Kensington',
 		user_type: 'family',
 	},

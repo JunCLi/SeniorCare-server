@@ -84,15 +84,15 @@ module.exports = {
 			}
 		},
 
-		async getJob(parent, { id }, { dataSources, req, app, postgres }) {
+		async getJob(parent, { jobId }, { dataSources, req, app, postgres }) {
 			try {
 				const tokenData = await authenticate(req, blacklistTable, postgres)
 				const { user_id, userType } = tokenData
 	
 				if (userType !== 'family') throw 'user type error'
 
-				const job = await dataSources.jobDB.getJob(id)
-				const services = await dataSources.jobDB.getServices(id)
+				const job = await dataSources.jobDB.getJob(jobId)
+				const services = await dataSources.jobDB.getServices(jobId)
 				const senior = await dataSources.seniorDB.getSenior(job.senior_id)
 
 				return formatJobPosts(job, services, senior)

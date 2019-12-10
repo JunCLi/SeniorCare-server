@@ -41,7 +41,7 @@ module.exports = gql`
 	extend type Query {
 		# getJobForm: JobForm
 		getAllUserJobs: [Job]
-		getJob(id: ID): Job
+		getJob(jobId: ID): Job
 	}
 
 	type Job {
