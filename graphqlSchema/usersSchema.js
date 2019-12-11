@@ -8,10 +8,6 @@ module.exports = gql`
 
 	scalar Date
 
-	type QueryPlaceholder {
-		id: ID
-	}
-
 	extend type Query {
 		getLoggedUser: User
 	}

@@ -8,5 +8,9 @@ module.exports = gql`
 	type Mutation { 
 		root: String
 	}
+
+	type Subscription {
+		root: String
+	}
 `
 

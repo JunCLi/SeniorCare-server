@@ -1,4 +1,4 @@
-const { camelToSnake, snakeToCamel } = require('../helperFunctions/caseConv') 
+const { camelToSnake } = require('../helperFunctions/caseConv') 
 
 module.exports.createSelectQuery = (selectColumns, table, selector, selectorValue) => {
 	selectColumns = selectColumns.map(column => camelToSnake(column))
@@ -16,12 +16,36 @@ module.exports.createSelectQuery = (selectColumns, table, selector, selectorValu
 }
 
 module.exports.createSelectAndQuery = (selectColumns, table, selectors, selectorValues, conditions) => {
+	selectColumns = selectColumns.map(column => camelToSnake(column))
 	const queryString = selectColumns.join(', ')
 	const whereConditionArray = selectors.map( (selector, index) => (
 		`${camelToSnake(selector)} ${conditions ? conditions[index] : '=' } '${selectorValues[index]}'`
 		))
 	const whereConditionString = whereConditionArray.join(' AND ')
 	
+	if (selectors.length) {
+		return {
+			text: `SELECT ${queryString} FROM ${table} WHERE ${whereConditionString}`
+		}
+	} else {
+		return {
+			text: `SELECT ${queryString} FROM ${table}`
+		}
+	}
+}
+
+module.exports.createSelectAndQueryOBJ = (selectColumns, table, selectors) => {
+	selectColumns = selectColumns.map(column => camelToSnake(column))
+	const queryString = selectColumns.join(', ')
+
+	const whereConditionArray = selectors.map(selector => {
+		const column = camelToSnake(selector.selector)
+		const condition = selector.condition ? selector.condition : '='
+		const value = selector.value
+		return `${column} ${condition} '${value}'`
+	})
+	const whereConditionString = whereConditionArray.join(' AND ')
+
 	if (selectors.length) {
 		return {
 			text: `SELECT ${queryString} FROM ${table} WHERE ${whereConditionString}`

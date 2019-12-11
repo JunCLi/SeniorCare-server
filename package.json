@@ -21,11 +21,13 @@
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "graphql": "^14.1.1",
+    "graphql-subscriptions": "^1.1.0",
     "jsonwebtoken": "^8.5.0",
     "node-cron": "^2.0.3",
     "node-pg-migrate": "^3.16.0",
     "pg": "^7.8.0",
-    "squel": "^5.12.2"
+    "squel": "^5.12.2",
+    "subscriptions-transport-ws": "^0.9.16"
   },
   "devDependencies": {
     "jest": "^24.1.0",

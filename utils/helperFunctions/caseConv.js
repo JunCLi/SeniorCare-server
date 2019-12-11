@@ -27,8 +27,32 @@ const snakeToCamel = object => {
 
 module.exports.snakeToCamel = snakeToCamel
 
-module.exports.camelToSnake = string => (
+
+const toSnake = string => (
 	string.replace(/([A-Z])/g, letter => (
 			'_' + letter.toLowerCase()
 	))
 )
+
+module.exports.camelToSnake = toSnake
+
+// const newCamelToSnake = object => {
+// 	if (typeof object  === 'object'
+// 		&& object !== null
+// 		&& !Array.isArray(object)
+// 		&& !(object instanceof Date)
+// 	) {
+// 		const newObject = {}
+// 		Object.keys(object).forEach(key => {
+// 			newObject[toSnake(key)] = newCamelToSnake(object[key])
+// 		})
+
+// 		return newObject
+// 	} else if (Array.isArray(object)) {
+// 		return object.map(item => newCamelToSnake(item))
+// 	}
+
+//   return object
+// }
+
+// module.exports.newCamelToSnake = newCamelToSnake

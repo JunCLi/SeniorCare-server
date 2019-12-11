@@ -7,6 +7,7 @@ const http = require('http')
 const path = require('path')
 const { ApolloServer } = require('apollo-server-express')
 const { makeExecutableSchema } = require('graphql-tools')
+const { PubSub } = require('graphql-subscriptions')
 
 // from files
 const postgres = require('./config/postgres')
@@ -17,6 +18,7 @@ const makeResolvers = require('./resolvers/resolvers')
 // configure
 const app = express()
 const PORT = process.env.PORT || 8080
+const pubsub = new PubSub()
 app.set('PORT', process.env.PORT || 8080)
 app.set('JWT_SECRET', process.env.JWT_SECRET || 'DEV_SECRET')
 app.set('JWT_COOKIE_NAME', 'token')
@@ -43,8 +45,9 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(cors(corsConfig))
 }
 
+// schema and resolvers
 const schema = makeExecutableSchema({
-  typeDefs,
+	typeDefs,
   resolvers,
 })
 
@@ -61,7 +64,8 @@ const apolloServer = new ApolloServer({
     return {
       app,
       req,
-      postgres,
+			postgres,
+			pubsub,
     }
   },
 	schema,
