@@ -24,7 +24,7 @@ module.exports = gql`
 	type Message {
 		id: ID
 		conversationId: ID
-		author: ID
+		authorId: ID
 		dateCreated: Date
 		content: String
 	}

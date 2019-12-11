@@ -49,10 +49,24 @@ module.exports = {
 	Query: {
 		async getMessages(parent, { conversationId }, { dataSources, req, app, postgres }) {
 			try {
+				const tokenData = await authenticate(req, blacklistTable, postgres)
+				const { user_id, userType } = tokenData
 
+				return snakeToCamel(await dataSources.messagesDB.getMessages(conversationId, user_id))
 			} catch(err) {
 				throw err
 			}
 		},
+
+		async getConversations(parent, { input }, { dataSources, req, app, postgres }) {
+			try {
+				const tokenData = await authenticate(req, blacklistTable, postgres)
+				const { user_id, userType } = tokenData
+
+				return snakeToCamel(await dataSources.messagesDB.getConversations(user_id))
+			} catch(err) {
+				throw err
+			}
+		}
 	},
 }

@@ -1,10 +1,10 @@
 const { DataSource } = require('apollo-datasource')
 
-const { createInsertQuery, createUpdateQuery, createSelectQuery, createSelectAndQuery, createSelectAndQueryOBJ } = require('../utils/DSHelperFunctions/makeQueries')
+const { createInsertQuery, createSelectQuery, createSelectAndQuery, createSelectAndQueryOBJ } = require('../utils/DSHelperFunctions/makeQueries')
 
 const databaseSchema = 'senior_care'
 const conversationTable = `${databaseSchema}.conversations`
-const messageTable = `${databaseSchema}.messages`
+const messagesTable = `${databaseSchema}.messages`
 
 class UsersDB extends DataSource {
 	constructor() {
@@ -28,6 +28,26 @@ class UsersDB extends DataSource {
 		return userType === 'family'
 			? familyObject
 			: caregiverObject
+	}
+
+	async validateParticipant(conversationId, authorId) {
+		try {
+			const validateColumns = [
+				'familyId',
+				'caregiverId',
+			]
+			const validateQuery = createSelectQuery(validateColumns, conversationTable, 'id', conversationId)
+			const validateResult = await this.context.postgres.query(validateQuery)
+
+			if (!validateResult.rows.length) throw 'no such conversation'
+
+			const checkParticipant = validateResult.rows.find(participants => participants.caregiver_id === authorId || participants.family_id === authorId)
+
+			return checkParticipant ? true : false
+
+		} catch(err) {
+			throw err
+		}
 	}
 
 	async createConversation(familyId, caregiverId) {
@@ -82,7 +102,7 @@ class UsersDB extends DataSource {
 				authorId,
 				content,
 			}
-			const newMessageQuery = createInsertQuery(newMessageObject, messageTable, ['*'])
+			const newMessageQuery = createInsertQuery(newMessageObject, messagesTable, ['*'])
 			const newMessageResult = await this.context.postgres.query(newMessageQuery)
 
 			return newMessageResult.rows[0]
@@ -91,21 +111,45 @@ class UsersDB extends DataSource {
 		}
 	}
 
-	async validateParticipant(conversationId, authorId) {
+	async getMessages(conversationId, userId) {
 		try {
-			const validateColumns = [
+			if (!(await this.validateParticipant(conversationId, userId))) throw 'not a participant'
+
+			const getMessagesColumns = [
+				'content',
+				'dateCreated',
+				'authorId',
+			]
+			const getMessagesQuery = createSelectQuery(getMessagesColumns, messagesTable, 'conversation_id', conversationId)
+			const getMessagesResult = await this.context.postgres.query(getMessagesQuery)
+
+			return getMessagesResult.rows
+		} catch(err) {
+			throw err
+		}
+	}
+
+	async getConversations(userId) {
+		try {
+			const getConversationsColumns = [
+				'id',
 				'familyId',
 				'caregiverId',
 			]
-			const validateQuery = createSelectQuery(validateColumns, conversationTable, 'id', conversationId)
-			const validateResult = await this.context.postgres.query(validateQuery)
+			const selectors = [
+				{
+					selector: 'family_id',
+					value: userId,
+				},
+				{
+					selector: 'caregiver_id',
+					value: userId,
+				},
+			]
+			const getConversationsQuery = createSelectAndQueryOBJ(getConversationsColumns, conversationTable, selectors, 'or')
+			const getConversationsResult = await this.context.postgres.query(getConversationsQuery)
 
-			if (!validateResult.rows.length) throw 'no such conversation'
-
-			const checkParticipant = validateResult.rows.find(participants => participants.caregiver_id === authorId || participants.family_id === authorId)
-
-			return checkParticipant ? true : false
-
+			return getConversationsResult.rows
 		} catch(err) {
 			throw err
 		}

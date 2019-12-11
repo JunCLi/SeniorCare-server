@@ -34,7 +34,7 @@ module.exports.createSelectAndQuery = (selectColumns, table, selectors, selector
 	}
 }
 
-module.exports.createSelectAndQueryOBJ = (selectColumns, table, selectors) => {
+module.exports.createSelectAndQueryOBJ = (selectColumns, table, selectors, joinType) => {
 	selectColumns = selectColumns.map(column => camelToSnake(column))
 	const queryString = selectColumns.join(', ')
 
@@ -44,7 +44,8 @@ module.exports.createSelectAndQueryOBJ = (selectColumns, table, selectors) => {
 		const value = selector.value
 		return `${column} ${condition} '${value}'`
 	})
-	const whereConditionString = whereConditionArray.join(' AND ')
+	const joinCondition = joinType == 'or' ? ' OR ' : ' AND '
+	const whereConditionString = whereConditionArray.join(joinCondition)
 
 	if (selectors.length) {
 		return {
