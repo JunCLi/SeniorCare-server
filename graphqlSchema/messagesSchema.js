@@ -2,18 +2,18 @@ const { gql } = require('apollo-server-express')
 
 module.exports = gql`
 	extend type Subscription {
-		messageAdded: Message
+		messageAdded(conversationId: ID!): Message
 		conversationAdded: Conversation
 	}
 
 	extend type Query {
-		getMessages(conversationId: ID): [Message]
+		getMessages(conversationId: ID!): [Message]
 		getConversations: [Conversation]
 	}
 
 	extend type Mutation {
-		addMessage(input: AddMessageInput): Message
-		startConversation(recipientId: ID): Conversation
+		addMessage(input: AddMessageInput!): Message
+		startConversation(recipientId: ID!): Conversation
 	}
 
 	input AddMessageInput {
@@ -33,5 +33,6 @@ module.exports = gql`
 		id: ID
 		familyId: ID
 		caregiverId: ID
+		recipient: User
 	}
 `

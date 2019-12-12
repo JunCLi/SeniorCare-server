@@ -1,4 +1,7 @@
-const { withFilter } = require('graphql-subscriptions')
+const { PubSub, withFilter } = require('graphql-subscriptions')
+const pubsub = require('../utils/pubsub/pubsub')
+
+// const { withFilter } = require('graphql-subscriptions')
 const authenticate = require('../utils/authentication/authenticate')
 const { snakeToCamel } = require('../utils/helperFunctions/caseConv')
 
@@ -6,12 +9,12 @@ const databaseSchema = 'senior_care'
 const blacklistTable = `${databaseSchema}.blacklist_jwt`
 
 module.exports = {
-	Subscriptions: {
+	Subscription: {
 		messageAdded: {
-			subscribe: {
-
-			}
-		}
+			subscribe: withFilter(() => pubsub.asyncIterator('messageAdded'), (payload, variables) => {
+				return +payload.messageAdded.conversationId === +variables.conversationId 
+			})
+		},
 	},
 
 	Mutation: {
@@ -63,7 +66,17 @@ module.exports = {
 				const tokenData = await authenticate(req, blacklistTable, postgres)
 				const { user_id, userType } = tokenData
 
-				return snakeToCamel(await dataSources.messagesDB.getConversations(user_id))
+				const conversations = await dataSources.messagesDB.getConversations(user_id)
+				const conversationsWithRecipient = await Promise.all(conversations.map(async conversation => {
+					const recipientId = await dataSources.messagesDB.getRecipientId(conversation, userType)
+					const recipient = await dataSources.usersDB.getUserDetails(recipientId)
+					return {
+						...conversation,
+						recipient,
+					}
+				}))
+				
+				return snakeToCamel(conversationsWithRecipient)
 			} catch(err) {
 				throw err
 			}

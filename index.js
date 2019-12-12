@@ -7,7 +7,6 @@ const http = require('http')
 const path = require('path')
 const { ApolloServer } = require('apollo-server-express')
 const { makeExecutableSchema } = require('graphql-tools')
-const { PubSub } = require('graphql-subscriptions')
 
 // from files
 const postgres = require('./config/postgres')
@@ -18,7 +17,6 @@ const makeResolvers = require('./resolvers/resolvers')
 // configure
 const app = express()
 const PORT = process.env.PORT || 8080
-const pubsub = new PubSub()
 app.set('PORT', process.env.PORT || 8080)
 app.set('JWT_SECRET', process.env.JWT_SECRET || 'DEV_SECRET')
 app.set('JWT_COOKIE_NAME', 'token')
@@ -52,10 +50,14 @@ const schema = makeExecutableSchema({
 })
 
 const apolloServer = new ApolloServer({
-  context: ({ req }) => {
+  context: ({ req, connection }) => {
+		if (connection) {
+			return connection.context
+		}
+
     if (
-      req.headers.referer === 'http://localhost:8080/graphql' &&
-      process.env.NODE_ENV !== 'production'
+			req.headers.referer === 'http://localhost:8080/graphql'
+			&& process.env.NODE_ENV !== 'production'
     ) {
       app.set('SKIP_AUTH', true)
     } else {
@@ -65,7 +67,6 @@ const apolloServer = new ApolloServer({
       app,
       req,
 			postgres,
-			pubsub,
     }
   },
 	schema,
@@ -86,10 +87,10 @@ postgres.on('error', (err, client) => {
   process.exit(-1)
 })
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`>> ${chalk.blue('Express running:')} http://localhost:${PORT}`)
 
-  console.log(`>> ${chalk.magenta('GraphQL playground:')} http://localhost:${PORT}/graphql`)
+	console.log(`>> ${chalk.magenta('GraphQL playground:')} http://localhost:${PORT}/graphql`)
 })
 
 server.on('error', err => {

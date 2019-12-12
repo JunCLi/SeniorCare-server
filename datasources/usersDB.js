@@ -174,6 +174,7 @@ class UsersDB extends DataSource {
 	async getUserDetails(user_id) {
 		try {
 			const getUserColumns = [
+				'id',
 				'email',
 				'first_name',
 				'last_name',
@@ -187,7 +188,10 @@ class UsersDB extends DataSource {
 			const getUserQuery = createSelectQuery(getUserColumns, usersTableDefault, 'id', user_id)
 			const getUserResult = await this.context.postgres.query(getUserQuery)
 
-			return getUserResult.rows[0]
+			const user = getUserResult.rows[0]
+			user.userId = user.id
+
+			return user
 		} catch(err) {
 			throw err
 		}

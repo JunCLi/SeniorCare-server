@@ -23,7 +23,7 @@ module.exports = () => {
 		},
 
 		Subscription: {
-			...messagesResolvers.Subscriptions,
+			...messagesResolvers.Subscription,
 		}
   }
 }

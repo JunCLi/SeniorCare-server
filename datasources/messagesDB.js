@@ -1,5 +1,9 @@
+const { PubSub, withFilter } = require('graphql-subscriptions')
+const pubsub = require('../utils/pubsub/pubsub')
+
 const { DataSource } = require('apollo-datasource')
 
+const { snakeToCamel } = require('../utils/helperFunctions/caseConv')
 const { createInsertQuery, createSelectQuery, createSelectAndQuery, createSelectAndQueryOBJ } = require('../utils/DSHelperFunctions/makeQueries')
 
 const databaseSchema = 'senior_care'
@@ -13,6 +17,11 @@ class UsersDB extends DataSource {
 
 	initialize(config) {
 		this.context = config.context
+	}
+
+	async getRecipientId(conversationObject, userType) {
+		const oppositeUserType = userType === 'family' ? 'caregiver_id' : 'family_id'
+		return conversationObject[oppositeUserType]
 	}
 
 	async checkAuthor(authorId, recipientId, userType) {
@@ -44,7 +53,6 @@ class UsersDB extends DataSource {
 			const checkParticipant = validateResult.rows.find(participants => participants.caregiver_id === authorId || participants.family_id === authorId)
 
 			return checkParticipant ? true : false
-
 		} catch(err) {
 			throw err
 		}
@@ -104,8 +112,11 @@ class UsersDB extends DataSource {
 			}
 			const newMessageQuery = createInsertQuery(newMessageObject, messagesTable, ['*'])
 			const newMessageResult = await this.context.postgres.query(newMessageQuery)
+			const newMessage = snakeToCamel(newMessageResult.rows[0])
 
-			return newMessageResult.rows[0]
+			pubsub.publish('messageAdded', { messageAdded: newMessage })
+
+			return newMessage
 		} catch(err) {
 			throw err
 		}
@@ -116,6 +127,7 @@ class UsersDB extends DataSource {
 			if (!(await this.validateParticipant(conversationId, userId))) throw 'not a participant'
 
 			const getMessagesColumns = [
+				'id',
 				'content',
 				'dateCreated',
 				'authorId',
