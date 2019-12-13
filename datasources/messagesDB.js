@@ -58,21 +58,6 @@ class UsersDB extends DataSource {
 		}
 	}
 
-	async createConversation(familyId, caregiverId) {
-		try {
-			const newConversationObject = {
-				familyId,
-				caregiverId,
-			}
-			const newConversationQuery = createInsertQuery(newConversationObject, conversationTable, ['*'])
-			const newConversationResult = await this.context.postgres.query(newConversationQuery)
-
-			return newConversationResult.rows[0]
-		} catch(err) {
-			throw err
-		}
-	}
-
 	async checkConversation(familyId, caregiverId) {
 		try {
 			const checkConversationColumns = [
@@ -94,6 +79,28 @@ class UsersDB extends DataSource {
 			const checkConversationResult = await this.context.postgres.query(checkConversationQuery)
 
 			return checkConversationResult.rows.length ? checkConversationResult.rows[0] : null
+		} catch(err) {
+			throw err
+		}
+	}
+
+	async createConversation(familyId, caregiverId, recipientId) {
+		try {
+			const newConversationObject = {
+				familyId,
+				caregiverId,
+			}
+			const newConversationQuery = createInsertQuery(newConversationObject, conversationTable, ['*'])
+			const newConversationResult = await this.context.postgres.query(newConversationQuery)
+
+			const recipient = await this.context.dataSources.usersDB.getUserDetails(recipientId)
+			const newConversation = snakeToCamel({
+				...newConversationResult.rows[0],
+				recipient,
+			})
+			pubsub.publish('conversationAdded', {	conversationAdded: newConversation })
+
+			return newConversation
 		} catch(err) {
 			throw err
 		}
@@ -122,8 +129,9 @@ class UsersDB extends DataSource {
 		}
 	}
 
-	async getMessages(conversationId, userId) {
+	async getMessages(input, userId) {
 		try {
+			const { conversationId, cursor, first = 20 } = input
 			if (!(await this.validateParticipant(conversationId, userId))) throw 'not a participant'
 
 			const getMessagesColumns = [
@@ -134,6 +142,10 @@ class UsersDB extends DataSource {
 			]
 			const getMessagesQuery = createSelectQuery(getMessagesColumns, messagesTable, 'conversation_id', conversationId)
 			const getMessagesResult = await this.context.postgres.query(getMessagesQuery)
+
+			// if (cursor) {
+			// 	console.log(getMessagesResult.rows)
+			// }
 
 			return getMessagesResult.rows
 		} catch(err) {

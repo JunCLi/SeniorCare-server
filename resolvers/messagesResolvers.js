@@ -12,9 +12,14 @@ module.exports = {
 	Subscription: {
 		messageAdded: {
 			subscribe: withFilter(() => pubsub.asyncIterator('messageAdded'), (payload, variables) => {
-				return +payload.messageAdded.conversationId === +variables.conversationId 
+				return +payload.messageAdded.conversationId === +variables.input.conversationId 
 			})
 		},
+		conversationAdded: {
+			subscribe: withFilter(() => pubsub.asyncIterator('conversationAdded'), (payload, variables) => {
+				return true
+			})
+		}
 	},
 
 	Mutation: {
@@ -38,10 +43,9 @@ module.exports = {
 
 				let convo = await dataSources.messagesDB.checkConversation(familyId, caregiverId)
 				if ( !convo ) {
-					// create convo if doesn't exist
-					convo = await dataSources.messagesDB.createConversation(familyId, caregiverId)
+					convo = await dataSources.messagesDB.createConversation(familyId, caregiverId, recipientId)
 				}
-
+				
 				return snakeToCamel(convo)
 			} catch (err) {
 				throw err	
@@ -50,12 +54,12 @@ module.exports = {
 	},
 
 	Query: {
-		async getMessages(parent, { conversationId }, { dataSources, req, app, postgres }) {
+		async getMessages(parent, { input }, { dataSources, req, app, postgres }) {
 			try {
 				const tokenData = await authenticate(req, blacklistTable, postgres)
 				const { user_id, userType } = tokenData
 
-				return snakeToCamel(await dataSources.messagesDB.getMessages(conversationId, user_id))
+				return snakeToCamel(await dataSources.messagesDB.getMessages(input, user_id))
 			} catch(err) {
 				throw err
 			}
