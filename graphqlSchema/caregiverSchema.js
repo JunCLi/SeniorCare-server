@@ -13,9 +13,17 @@ module.exports = gql`
 		liveout
 	}
 
+	extend type Subscription {
+		receivedJobApplication(input: ApplyJobInput!): Caregiver
+	}
+
 	extend type Query {
 		getAllCaregivers(input: FilterCaregivers): [Caregiver!]!
 		getApplicants(jobId: ID): [Caregiver]
+	}
+
+	extend type Mutation {
+		applyJob(input: ApplyJobInput): Response
 	}
 
 	input FilterCaregivers {
@@ -23,6 +31,12 @@ module.exports = gql`
 		availability: Availability
 		hourlyRate: Int
 		yearsExperience: Int
+	}
+
+	input ApplyJobInput {
+		jobId: ID!
+		familyId: ID!
+		message: String
 	}
 
 	type Caregiver {
@@ -39,15 +53,5 @@ module.exports = gql`
 		availability: Availability
 		averageRating: Float
 		hourlyRate: Int
-	}
-
-	extend type Mutation {
-		applyJob(input: ApplyJobInput): Response
-	}
-
-	input ApplyJobInput {
-		jobId: ID!
-		familyId: ID!
-		message: String
 	}
 `

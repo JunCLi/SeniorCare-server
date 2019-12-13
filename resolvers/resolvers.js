@@ -23,6 +23,7 @@ module.exports = () => {
 		},
 
 		Subscription: {
+			...caregiverResolvers.Subscription,
 			...jobResolvers.Subscription,
 			...messagesResolvers.Subscription,
 		}

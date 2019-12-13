@@ -43,10 +43,9 @@ const formatJobPosts = (job, services, senior) => {
 
 module.exports = {
 	Subscription: {
-		jobAdded: {
-			subscribe: withFilter(() => pubsub.asyncIterator('jobAdded'), (payload, variables) => {
-				return true
-				// return +payload.messageAdded.conversationId === +variables.input.conversationId 
+		myJobAdded: {
+			subscribe: withFilter(() => pubsub.asyncIterator('myJobAdded'), (payload, variables) => {
+				return payload.myJobAdded.familyId === variables.familyId 
 			})
 		},
 	},
@@ -58,8 +57,12 @@ module.exports = {
 	
 				if (userType !== 'family') throw 'user type error'
 	
-				const seniorId = await dataSources.seniorDB.createSenior(input.seniorDetails, user_id)
-				await dataSources.jobDB.submitJobPost(input, seniorId, user_id)
+				const senior = await dataSources.seniorDB.createSenior(input.seniorDetails, user_id)
+				const job = await dataSources.jobDB.createJob(input, senior.seniorId, user_id)
+				const services = await (dataSources.jobDB.addServices(input.serviceDetails, job.id))
+
+				const jobPost = formatJobPosts(job, services, senior)
+				pubsub.publish('myJobAdded', { myJobAdded: jobPost })
 				return {
 					message: 'success'
 				}
@@ -67,12 +70,6 @@ module.exports = {
 				throw err
 			}
 		},
-
-		async createSenior(parent, { input }, { dataSources, req, app, postgres }) {
-			return {
-				message: 'success'
-			}
-		}
 	},
 
 	Query: {
@@ -111,5 +108,23 @@ module.exports = {
 				throw err
 			}
 		},
+
+		async getAllJobs(parent, { input }, { dataSources, req, app, postgres }) {
+			try {
+				const tokenData = await authenticate(req, blacklistTable, postgres)
+				const { user_id, userType } = tokenData
+	
+				if (userType !== 'caregiver') throw 'user type error'
+				const jobs = await dataSources.jobDB.getAllJobs()
+				const formattedJobs = await Promise.all(jobs.map(async job => {
+					const services = await dataSources.jobDB.getServices(job.id)
+					const senior = await dataSources.seniorDB.getSenior(job.senior_id)
+					return formatJobPosts(job, services, senior)
+				}))
+				return formattedJobs
+			} catch(err) {
+				throw err
+			}
+		}
 	}
 }

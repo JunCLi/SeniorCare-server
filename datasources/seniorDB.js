@@ -74,9 +74,9 @@ class SeniorDB extends DataSource {
 				seniorId = newSeniorResult.rows[0].id
 
 				this.addSeniorLanguages(language, seniorId)
+				seniorDetails.seniorId = seniorId
 			} 
-
-			return seniorId
+			return seniorDetails
 		} catch(err) {
 			throw err
 		}

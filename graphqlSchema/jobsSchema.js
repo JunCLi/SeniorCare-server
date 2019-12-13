@@ -39,12 +39,13 @@ module.exports = gql`
 	}
 	
 	extend type Subscription {
-		jobAdded: Job
+		myJobAdded(familyId: ID!): Job
 	}
 
 	extend type Query {
 		# getJobForm: JobForm
 		getAllUserJobs: [Job]
+		getAllJobs: [Job]
 		getJob(jobId: ID): Job
 	}
 

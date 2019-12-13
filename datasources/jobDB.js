@@ -32,7 +32,7 @@ class JobDB extends DataSource {
 		}
 	}
 
-	async submitJobPost(input, seniorId, user_id) {
+	async createJob(input, seniorId, user_id) {
 		try {
 			const { basicInformation, serviceDetails, houseDetails, caregiverPreferences } = input
 			const { location, ...basicInformationNoLocation } = basicInformation
@@ -45,39 +45,37 @@ class JobDB extends DataSource {
 				...houseDetails,
 				...caregiverPreferences,
 			}
-			const newJobQuery = createInsertQuery(newJobObject, jobTable, ['id'])
+			const newJobQuery = createInsertQuery(newJobObject, jobTable, ['*'])
 			const newJobResult = await this.context.postgres.query(newJobQuery)
-	
-			const jobId = newJobResult.rows[0].id
-	
-			if (!jobId) throw 'error submitting jobpost'
-	
-			const serviceArray = [...serviceDetails.services, ...serviceDetails.householdNeeds]
-			const getServiceIdColumns = [
-				'id',
-				'title',
-			]
-			const getServiceIdQuery = createSelectQuery(getServiceIdColumns, servicesTable)
-			const getServiceIdResult = await this.context.postgres.query(getServiceIdQuery)
-	
-			const serviceIdArray = serviceArray.map(service =>
-				getServiceIdResult.rows.find(dbService => dbService.title === service).id
-			)		
-			await Promise.all(serviceIdArray.map(serviceId => {
-				const serviceObject = {
-					jobId,
-					serviceId
-				}
-				const insertServiceQuery = createInsertQuery(serviceObject, servicesJobTable)
-				return this.context.postgres.query(insertServiceQuery)
-			}))
-	
-			return {
-				message: 'success'
-			}
+
+			return newJobResult.rows[0]
 		} catch(err) {
 			throw err
 		}
+	}
+
+	async addServices(serviceDetails, jobId) {
+		const serviceArray = [...serviceDetails.services, ...serviceDetails.householdNeeds]
+		const getServiceIdColumns = [
+			'id',
+			'title',
+		]
+		const getServiceIdQuery = createSelectQuery(getServiceIdColumns, servicesTable)
+		const getServiceIdResult = await this.context.postgres.query(getServiceIdQuery)
+
+		const serviceIdArray = serviceArray.map(service =>
+			getServiceIdResult.rows.find(dbService => dbService.title === service).id
+		)
+		await Promise.all(serviceIdArray.map(serviceId => {
+			const serviceObject = {
+				jobId,
+				serviceId
+			}
+			const insertServiceQuery = createInsertQuery(serviceObject, servicesJobTable)
+			return this.context.postgres.query(insertServiceQuery)
+		}))
+
+		return serviceArray
 	}
 
 	async getAllUserJobs(user_id) {
@@ -87,6 +85,21 @@ class JobDB extends DataSource {
 	
 			return getJobPostsResult.rows
 		} catch (err) {
+			throw err
+		}
+	}
+
+	async getAllJobs() {
+		try {
+			const getJobsQuery = createSelectQuery(['*'], jobTable)
+			const getJobsResult = await this.context.postgres.query(getJobsQuery)
+
+			const sortedJobs = getJobsResult.rows.sort((a, b) => {
+				return b.date_created - a.date_created
+			})
+
+			return sortedJobs
+		} catch(err) {
 			throw err
 		}
 	}

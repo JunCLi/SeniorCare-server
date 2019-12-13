@@ -8,6 +8,7 @@ const familySeed = require('./familySeeds')
 const serviceSeed = require('./serviceSeeds')
 const languageSeed = require('./languageSeeds')
 const seniorSeed = require('./seniorSeeds')
+const jobsSeed = require('./jobsSeeds')
 
 const databaseSchema = 'senior_care'
 
@@ -18,6 +19,7 @@ const allSeeds = [
 	serviceSeed,
 	languageSeed,
 	seniorSeed,
+	jobsSeed,
 ]
 
 
