@@ -1,3 +1,6 @@
+const { withFilter } = require('graphql-subscriptions')
+const pubsub = require('../utils/pubsub/pubsub')
+
 const authenticate = require('../utils/authentication/authenticate')
 const { snakeToCamel } = require('../utils/helperFunctions/caseConv')
 
@@ -39,6 +42,14 @@ const formatJobPosts = (job, services, senior) => {
 }
 
 module.exports = {
+	Subscription: {
+		jobAdded: {
+			subscribe: withFilter(() => pubsub.asyncIterator('jobAdded'), (payload, variables) => {
+				return true
+				// return +payload.messageAdded.conversationId === +variables.input.conversationId 
+			})
+		},
+	},
 	Mutation: {
 		async submitJobPost (parent, { input }, { dataSources, req, app, postgres }) {
 			try {

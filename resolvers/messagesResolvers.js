@@ -17,7 +17,7 @@ module.exports = {
 		},
 		conversationAdded: {
 			subscribe: withFilter(() => pubsub.asyncIterator('conversationAdded'), (payload, variables) => {
-				return true
+				return payload.conversationAdded.caregiverId === variables.userId || payload.conversationAdded.familyId === variables.userId
 			})
 		}
 	},

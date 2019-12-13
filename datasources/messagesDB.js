@@ -93,10 +93,12 @@ class UsersDB extends DataSource {
 			const newConversationQuery = createInsertQuery(newConversationObject, conversationTable, ['*'])
 			const newConversationResult = await this.context.postgres.query(newConversationQuery)
 
-			const recipient = await this.context.dataSources.usersDB.getUserDetails(recipientId)
+			const family = await this.context.dataSources.usersDB.getUserDetails(familyId)
+			const caregiver = await this.context.dataSources.usersDB.getUserDetails(caregiverId)
 			const newConversation = snakeToCamel({
 				...newConversationResult.rows[0],
-				recipient,
+				family,
+				caregiver,
 			})
 			pubsub.publish('conversationAdded', {	conversationAdded: newConversation })
 

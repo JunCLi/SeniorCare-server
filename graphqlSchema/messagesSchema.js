@@ -3,7 +3,7 @@ const { gql } = require('apollo-server-express')
 module.exports = gql`
 	extend type Subscription {
 		messageAdded(input: CursorMessageInput!): Message
-		conversationAdded: Conversation
+		conversationAdded(userId: ID!): SubscriptionConversation
 	}
 
 	extend type Query {
@@ -40,5 +40,13 @@ module.exports = gql`
 		familyId: ID
 		caregiverId: ID
 		recipient: User
+	}
+
+	type SubscriptionConversation {
+		id: ID
+		familyId: ID
+		caregiverId: ID
+		family: User
+		caregiver: User
 	}
 `

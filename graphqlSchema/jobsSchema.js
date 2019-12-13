@@ -37,11 +37,19 @@ module.exports = gql`
 		laundry
 		shoppping
 	}
+	
+	extend type Subscription {
+		jobAdded: Job
+	}
 
 	extend type Query {
 		# getJobForm: JobForm
 		getAllUserJobs: [Job]
 		getJob(jobId: ID): Job
+	}
+
+	extend type Mutation {
+		submitJobPost(input: JobFormInput): Response
 	}
 
 	type Job {
@@ -107,10 +115,6 @@ module.exports = gql`
 		genderPref: Gender
 		driversLicense: Boolean
 		additionalInformation: String
-	}
-
-	extend type Mutation {
-		submitJobPost(input: JobFormInput): Response
 	}
 
 	input JobFormInput {
