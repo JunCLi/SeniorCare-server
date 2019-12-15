@@ -1,8 +1,6 @@
 const { DataSource } = require('apollo-datasource')
 
-const authenticate = require('../utils/authentication/authenticate')
-const { encryptPassword, comparePassword } = require('../utils/DSHelperFunctions/bcryptFunctions')
-const { createCookie, setCookie, retrieveCookie } = require('../utils/authentication/cookieFunctions')
+const { formatJobPosts } = require('../utils/format/jobs')
 const { createInsertQuery, createUpdateQuery, createSelectQuery, createSelectAndQuery, createInnerJoinSelect } = require('../utils/DSHelperFunctions/makeQueries')
 
 const databaseSchema = 'senior_care'
@@ -114,6 +112,17 @@ class JobDB extends DataSource {
 		}
 	}
 
+	async getJobPost(jobId) {
+		try {			
+			const [ job, services ] = await Promise.all([this.getJob(jobId), this.getServices(jobId)])
+			const senior = await this.context.dataSources.seniorDB.getSenior(job.senior_id)
+
+			return formatJobPosts(job, services, senior)
+		} catch (err) {
+			throw err
+		}
+	}
+
 	async applyJob(input, user_id) {
 		try {
 			const { jobId, familyId, message } = input
@@ -148,7 +157,7 @@ class JobDB extends DataSource {
 		}
 	}
 
-	async getJobApplications(familyId, jobId) {
+	async getJobApplications(selectorObject) {
 		try {
 			const getApplicationColumns = [
 				'id',
@@ -159,16 +168,12 @@ class JobDB extends DataSource {
 				'status',
 				'message',
 			]
-			const getApplicantsSelectors = [
-				'family_id',
-				'jobpost_id',
-			]
-			const getApplicantsSelectorValues = [
-				familyId,
-				jobId,
-			]
+			const getApplicantsSelectors = Object.keys(selectorObject)
+			const getApplicantsSelectorValues = Object.values(selectorObject)
+
 			const getApplicantsQuery = createSelectAndQuery(getApplicationColumns, applicantsTable, getApplicantsSelectors, getApplicantsSelectorValues)
 			const getApplicantResult = await this.context.postgres.query(getApplicantsQuery)
+
 			return getApplicantResult.rows
 		} catch(err) {
 			throw err

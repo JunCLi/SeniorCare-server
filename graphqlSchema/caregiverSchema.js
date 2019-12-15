@@ -20,10 +20,12 @@ module.exports = gql`
 	extend type Query {
 		getAllCaregivers(input: FilterCaregivers): [Caregiver!]!
 		getApplicants(jobId: ID): [Caregiver]
+		getMyApplications: [Application]
+		getAppliedJob(jobId: ID): BasicJob 
 	}
 
 	extend type Mutation {
-		applyJob(input: ApplyJobInput): Response
+		applyJob(input: ApplyJobInput!): Response
 	}
 
 	input FilterCaregivers {
@@ -53,5 +55,20 @@ module.exports = gql`
 		availability: Availability
 		averageRating: Float
 		hourlyRate: Int
+	}
+
+	# type JobApplication {
+	# 	application: Application
+	# 	family: User
+	# 	jobDetails: Job
+	# }
+
+	type Application {
+		id: ID
+		jobId: ID
+		familyId: ID
+		dateCreated: Date
+		message: String
+		status: String
 	}
 `

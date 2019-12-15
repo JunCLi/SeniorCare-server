@@ -45,12 +45,17 @@ module.exports = gql`
 	extend type Query {
 		# getJobForm: JobForm
 		getAllUserJobs: [Job]
-		getAllJobs: [Job]
+		getAllJobs: [BasicJob]
 		getJob(jobId: ID): Job
 	}
 
 	extend type Mutation {
 		submitJobPost(input: JobFormInput): Response
+	}
+
+	type BasicJob {
+		family: User
+		jobDetails: Job
 	}
 
 	type Job {

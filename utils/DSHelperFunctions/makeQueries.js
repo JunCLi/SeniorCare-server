@@ -18,9 +18,12 @@ module.exports.createSelectQuery = (selectColumns, table, selector, selectorValu
 module.exports.createSelectAndQuery = (selectColumns, table, selectors, selectorValues, conditions) => {
 	selectColumns = selectColumns.map(column => camelToSnake(column))
 	const queryString = selectColumns.join(', ')
-	const whereConditionArray = selectors.map( (selector, index) => (
-		`${camelToSnake(selector)} ${conditions ? conditions[index] : '=' } '${selectorValues[index]}'`
-		))
+	const whereConditionArray = selectors.map( (selector, index) => {
+		const column = camelToSnake(selector)
+		const condition = conditions ? conditions[index] : '='
+		const value = selectorValues[index]
+		return `${column} ${condition} '${value}'`
+	})
 	const whereConditionString = whereConditionArray.join(' AND ')
 	
 	if (selectors.length) {

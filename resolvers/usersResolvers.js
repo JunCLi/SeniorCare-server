@@ -22,6 +22,10 @@ module.exports = {
 	Query: {
 		async getLoggedUser(parent, { input }, { dataSources, req, app, postgres }) {
 			return snakeToCamel(await dataSources.usersDB.getLoggedUser(input))
-		}
+		},
+
+		async getUser(parent, { userId }, { dataSources, req, app, postgres }) {
+			return snakeToCamel(await dataSources.usersDB.getUserDetails(userId))
+		},
 	}
 }

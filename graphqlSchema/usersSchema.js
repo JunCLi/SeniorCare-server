@@ -10,6 +10,7 @@ module.exports = gql`
 
 	extend type Query {
 		getLoggedUser: User
+		getUser(userId: ID!): User
 	}
 
 	type User {

@@ -65,7 +65,7 @@ const userSeeds = [
 		last_modified: "2019-07-23T21:05:43.397Z",
 		status: 'confirmed',
 		phone_number: '5147466616',
-		avatar: 'https://scontent-yyz1-1.xx.fbcdn.net/v/t1.0-9/381079_2021461996262_2020060162_n.jpg?_nc_cat=108&_nc_oc=AQkMhrjmETABhWl4m9wzSjTnukuKJQcgdZ4JbCDXfqLa6JKwg43n_PxR2IWsQabxlfw&_nc_ht=scontent-yyz1-1.xx&oh=23cf1e9aaeb087b2e133c4d7d968d22a&oe=5DB8A76A',
+		avatar: 'https://www.jeffalanjohnson.com/static/media/solo.f70aa132.png',
 		location: 'South Core',
 		user_type: 'family',
 	},

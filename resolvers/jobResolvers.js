@@ -3,43 +3,10 @@ const pubsub = require('../utils/pubsub/pubsub')
 
 const authenticate = require('../utils/authentication/authenticate')
 const { snakeToCamel } = require('../utils/helperFunctions/caseConv')
+const { formatJobPosts } = require('../utils/format/jobs')
 
 const databaseSchema = 'senior_care'
 const blacklistTable = `${databaseSchema}.blacklist_jwt`
-
-const formatJobPosts = (job, services, senior) => {
-	return snakeToCamel({
-		id: job.id,
-		family_id: job.family_id,
-		dateCreated: job.date_created,
-		basicInformation: {
-			title: job.title,
-			startDate: job.start_date,
-			endDate: job.end_date,
-			location: {
-				address: job.address,
-				city: job.city,
-				province: job.province,
-				postalCode: job.postal_code,
-			},
-			hourlyRate: job.hourly_rate,
-		},
-		serviceDetails: {
-			services: services
-		},
-		seniorDetails: senior,
-		houseDetails: {
-			cigarette: job.cigarette,
-			pets: job.pets,
-			cannabis: job.cannabis,
-		},
-		caregiverPreferences: {
-			availability: job.availability,
-			genderPref: job.gender_pref,
-			driversLicense: job.drivers_license,
-		}
-	})
-}
 
 module.exports = {
 	Subscription: {
@@ -94,15 +61,10 @@ module.exports = {
 
 		async getJob(parent, { jobId }, { dataSources, req, app, postgres }) {
 			try {
-				const tokenData = await authenticate(req, blacklistTable, postgres)
-				const { user_id, userType } = tokenData
-	
-				if (userType !== 'family') throw 'user type error'
-
 				const job = await dataSources.jobDB.getJob(jobId)
 				const services = await dataSources.jobDB.getServices(jobId)
 				const senior = await dataSources.seniorDB.getSenior(job.senior_id)
-
+				
 				return formatJobPosts(job, services, senior)
 			} catch(err) {
 				throw err
@@ -119,7 +81,11 @@ module.exports = {
 				const formattedJobs = await Promise.all(jobs.map(async job => {
 					const services = await dataSources.jobDB.getServices(job.id)
 					const senior = await dataSources.seniorDB.getSenior(job.senior_id)
-					return formatJobPosts(job, services, senior)
+					const jobPoster = await dataSources.usersDB.getUserDetails(job.family_id)
+					return { 
+						family: snakeToCamel(jobPoster),
+						jobDetails: formatJobPosts(job, services, senior),
+					}
 				}))
 				return formattedJobs
 			} catch(err) {
